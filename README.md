@@ -42,6 +42,8 @@ cd gudocs-fe
 
 이 프로젝트는 Wanted Design System(WDS)을 더 효율적으로 사용할 수 있도록 Model Context Protocol(MCP) 서버 사용을 권장합니다. Claude Code나 Cursor에서 WDS 컴포넌트 명세와 가이드라인을 AI에게 직접 학습시킬 수 있습니다.
 
+공식 문서: https://montage.wanted.co.kr/docs/getting-started
+
 1. Claude Code (CLI)에서 설정
 터미널에서 아래 명령어를 입력하여 WDS MCP 서버를 추가합니다.
 ```
