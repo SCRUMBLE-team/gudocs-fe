@@ -38,6 +38,41 @@ cd gudocs-fe
 > 2. **`read:packages`** 권한 체크 후 토큰 생성
 > 3. 생성된 토큰(`ghp_...`)을 위 파일에 입력
 
+**🛠 AI 코딩 어시스턴트 연동 (MCP)**
+
+이 프로젝트는 Wanted Design System(WDS)을 더 효율적으로 사용할 수 있도록 Model Context Protocol(MCP) 서버 사용을 권장합니다. Claude Code나 Cursor에서 WDS 컴포넌트 명세와 가이드라인을 AI에게 직접 학습시킬 수 있습니다.
+
+1. Claude Code (CLI)에서 설정
+터미널에서 아래 명령어를 입력하여 WDS MCP 서버를 추가합니다.
+```
+Bash
+claude mcp add montage-mcp-server npx -y @wanteddev/wds-mcp@latest
+```
+2. Cursor (Desktop)에서 설정
+.cursor/mcp.json 파일에 다음 설정을 추가하거나, Settings > Models > MCP에서 등록하세요.
+```
+JSON
+{
+  "mcpServers": {
+    "montage-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "@wanteddev/wds-mcp@latest"]
+    }
+  }
+}
+```
+3. 주요 활용 사례
+연동 후 AI에게 다음과 같이 요청하여 WDS를 활용할 수 있습니다.
+
+컴포넌트 조회: "WDS Button 컴포넌트의 사용법과 속성(props)을 알려줘."
+
+코드 생성: "WDS 가이드라인을 준수해서 구독 해지 확인 모달 코드를 작성해줘."
+
+디자인 토큰: "이 서비스에 적합한 WDS 컬러 토큰과 아이콘 목록을 보여줘."
+
+유틸리티: "WDS에서 제공하는 유틸리티 함수 목록을 확인해줘."
+
+
 ### 3. 의존성 설치
 
 ```bash
