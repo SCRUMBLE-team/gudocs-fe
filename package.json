@@ -12,7 +12,10 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
     "@wanteddev/wds": "^3.6.0",
+    "@wanteddev/wds-engine": "^3.6.0",
     "@wanteddev/wds-icon": "^3.6.0",
+    "@wanteddev/wds-lottie": "^3.6.0",
+    "@wanteddev/wds-theme": "^3.6.0",
     "axios": "^1.16.0",
     "pretendard": "^1.3.9",
     "react": "^19.2.5",
