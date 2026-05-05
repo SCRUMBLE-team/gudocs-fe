@@ -7,28 +7,40 @@ import {
   FormField,
   FormErrorMessage,
 } from "@wanteddev/wds";
-import { useAuth } from "../../../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 
 interface FormErrors {
+  name?: string;
   email?: string;
   password?: string;
+  passwordConfirm?: string;
 }
 
-export default function LoginPage() {
-  const { handleLogin, validateEmail, validatePassword } = useAuth();
+export default function RegisterPage() {
+  const {
+    handleRegister,
+    validateEmail,
+    validatePassword,
+    validatePasswordMatch,
+  } = useAuth();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: FormErrors = {};
 
+    if (!name.trim()) newErrors.name = "이름을 입력하세요.";
     if (!validateEmail(email))
       newErrors.email = "유효한 이메일 형식을 입력하세요.";
     if (!validatePassword(password))
       newErrors.password = "비밀번호는 8자 이상이어야 합니다.";
+    if (!validatePasswordMatch(password, passwordConfirm))
+      newErrors.passwordConfirm = "비밀번호가 일치하지 않습니다.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -36,8 +48,11 @@ export default function LoginPage() {
     }
 
     setErrors({});
-    handleLogin({ email, password });
+    handleRegister({ name, email, password, passwordConfirm });
   };
+
+  const clearError = (field: keyof FormErrors) =>
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
 
   return (
     <div
@@ -65,7 +80,7 @@ export default function LoginPage() {
           align="center"
           style={{ marginBottom: "8px", display: "block" }}
         >
-          로그인
+          회원가입
         </Typography>
         <Typography
           variant="body2"
@@ -73,13 +88,37 @@ export default function LoginPage() {
           align="center"
           style={{ marginBottom: "32px", display: "block" }}
         >
-          구독 관리 대시보드에 오신 걸 환영합니다
+          구독 관리를 시작해보세요
         </Typography>
 
         <form
+          noValidate
           onSubmit={handleSubmit}
           style={{ display: "flex", flexDirection: "column", gap: "16px" }}
         >
+          <FormField flexDirection="column" gap="4px">
+            <Typography
+              variant="label1"
+              weight="medium"
+              color="semantic.label.normal"
+              style={{ display: "block" }}
+            >
+              이름
+            </Typography>
+            <TextField
+              type="text"
+              placeholder="이름을 입력하세요"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                clearError("name");
+              }}
+              invalid={!!errors.name}
+              width="100%"
+            />
+            {errors.name && <FormErrorMessage>{errors.name}</FormErrorMessage>}
+          </FormField>
+
           <FormField flexDirection="column" gap="4px">
             <Typography
               variant="label1"
@@ -95,8 +134,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                if (errors.email)
-                  setErrors((prev) => ({ ...prev, email: undefined }));
+                clearError("email");
               }}
               invalid={!!errors.email}
               width="100%"
@@ -121,14 +159,38 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                if (errors.password)
-                  setErrors((prev) => ({ ...prev, password: undefined }));
+                clearError("password");
               }}
               invalid={!!errors.password}
               width="100%"
             />
             {errors.password && (
               <FormErrorMessage>{errors.password}</FormErrorMessage>
+            )}
+          </FormField>
+
+          <FormField flexDirection="column" gap="4px">
+            <Typography
+              variant="label1"
+              weight="medium"
+              color="semantic.label.normal"
+              style={{ display: "block" }}
+            >
+              비밀번호 확인
+            </Typography>
+            <TextField
+              type="password"
+              placeholder="비밀번호를 다시 입력하세요"
+              value={passwordConfirm}
+              onChange={(e) => {
+                setPasswordConfirm(e.target.value);
+                clearError("passwordConfirm");
+              }}
+              invalid={!!errors.passwordConfirm}
+              width="100%"
+            />
+            {errors.passwordConfirm && (
+              <FormErrorMessage>{errors.passwordConfirm}</FormErrorMessage>
             )}
           </FormField>
 
@@ -140,22 +202,22 @@ export default function LoginPage() {
             fullWidth
             style={{ marginTop: "8px" }}
           >
-            로그인
+            회원가입
           </Button>
         </form>
 
         <div style={{ marginTop: "20px", textAlign: "center" }}>
-          <Typography variant="body2">
-            계정이 없으신가요?{" "}
+          <Typography variant="body2" color="semantic.label.alternative">
+            이미 계정이 있으신가요?
             <Link
-              to="/register"
+              to="/login"
               style={{
                 color: "var(--semantic-primary-normal)",
                 textDecoration: "none",
                 fontWeight: 500,
               }}
             >
-              회원가입
+              로그인
             </Link>
           </Typography>
         </div>

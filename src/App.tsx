@@ -1,37 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Typography } from "@wanteddev/wds";
-import LoginPage from "./domain/auth/pages/LoginPage";
-import RegisterPage from "./domain/auth/pages/RegisterPage";
+import LoginPage from "./routes/login/LoginPage";
+import RegisterPage from "./routes/register/RegisterPage";
 import PrivateRoute from "./components/PrivateRoute";
-import Header from "./layouts/Header";
-
-function DashboardPage() {
-  return (
-    <div style={{ padding: "32px 24px" }}>
-      <Typography variant="title2" weight="bold">
-        대시보드
-      </Typography>
-    </div>
-  );
-}
-
-function DashboardLayout() {
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "var(--semantic-background-normal-alternative)",
-      }}
-    >
-      <Header />
-      <main>
-        <Routes>
-          <Route index element={<DashboardPage />} />
-        </Routes>
-      </main>
-    </div>
-  );
-}
+import DashboardPage from "./routes/dashboard/DashboardPage";
 
 function App() {
   return (
@@ -43,7 +14,7 @@ function App() {
           path="/dashboard/*"
           element={
             <PrivateRoute>
-              <DashboardLayout />
+              <DashboardPage />
             </PrivateRoute>
           }
         />
