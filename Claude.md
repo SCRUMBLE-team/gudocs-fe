@@ -19,7 +19,7 @@
 | ---------- | ------------------------------- |
 | Frontend   | TypeScript, React               |
 | 상태 관리  | Zustand (전역 상태)             |
-| 스타일     | tailwindcss                     |
+| 스타일     | Tailwind CSS v4, Wanted Design System (`@wanteddev/wds`) |
 | api 호출출 | axios                           |
 | 차트       | (별도 정의 시 여기에 추가)      |
 | Backend/DB | (별도 정의 시 여기에 추가)      |
@@ -287,6 +287,74 @@ const calcMonthlyTotal = (subscriptions: Subscription[]): number =>
 - 회원 정보 수정 (이름)
 - 비밀번호 변경: 변경 후 강제 로그아웃 → `/login` 이동
 - 회원 탈퇴: 비밀번호 재확인 → 탈퇴 처리 → 서비스 메인 이동
+
+---
+
+## 스타일링 가이드
+
+### Wanted Design System (WDS)
+
+UI를 구현할 때 **커스텀 컴포넌트보다 WDS 컴포넌트를 우선 사용**한다.
+WDS에 없는 경우에만 Tailwind CSS로 직접 구현한다.
+
+- 패키지: `@wanteddev/wds`, `@wanteddev/wds-icon`
+- 문서: https://montage.wanted.co.kr
+- 기본 폰트: Pretendard (`pretendard` 패키지로 설치, `main.tsx`에서 import)
+
+#### ThemeProvider 설정
+
+`main.tsx`에서 앱 전체를 `ThemeProvider`로 감싼다.
+
+```tsx
+import { ThemeProvider } from '@wanteddev/wds'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  </StrictMode>,
+)
+```
+
+#### 컴포넌트 사용 예시
+
+```tsx
+import { Button, Badge, Avatar } from '@wanteddev/wds'
+import { IcSearch, IcBell } from '@wanteddev/wds-icon'
+
+// 버튼
+<Button variant="primary" size="md" onClick={handleClick}>
+  구독 추가
+</Button>
+
+<Button variant="outlined" size="sm" disabled>
+  비활성화
+</Button>
+
+// 뱃지 (알림 카운트 등)
+<Badge count={unreadCount} max={99}>
+  <IcBell size={24} />
+</Badge>
+
+// 아이콘
+<IcSearch size={20} color="gray600" />
+```
+
+#### 색상 및 토큰 활용
+
+WDS 디자인 토큰을 CSS 변수로 활용한다. Tailwind 임의값보다 토큰을 우선 사용한다.
+
+```tsx
+// ✅ WDS 토큰 사용
+<div style={{ color: 'var(--color-gray-700)' }}>텍스트</div>
+
+// ✅ WDS 컴포넌트의 variant/color prop 사용
+<Button variant="primary">확인</Button>
+
+// ❌ 하드코딩된 색상 직접 사용 지양
+<div style={{ color: '#333' }}>텍스트</div>
+```
 
 ---
 

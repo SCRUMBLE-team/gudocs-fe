@@ -1,5 +1,7 @@
+import { Button } from "@wanteddev/wds";
+
 function App() {
-  return <div className="text-red-500">home</div>;
+  return <Button>test</Button>;
 }
 
 export default App;
