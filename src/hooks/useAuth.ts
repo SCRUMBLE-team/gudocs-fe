@@ -17,13 +17,13 @@ export function useAuth() {
     password === confirm;
 
   const handleLogin = async ({ email, password }: LoginRequest) => {
-    login({ email, password });
     try {
+      await login({ email, password });
       const result = await getUser();
       setUser(result.data);
       navigate("/dashboard");
       toast({
-        content: `${result.data.email}님, 어서오세요!`,
+        content: `${result.data.name}님, 어서오세요!`,
         variant: "positive",
         duration: "short",
       });
@@ -56,7 +56,6 @@ export function useAuth() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
   };
 
   return {

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   TextField,
@@ -8,6 +8,7 @@ import {
   FormErrorMessage,
 } from "@wanteddev/wds";
 import { useAuth } from "../../hooks/useAuth";
+import { useAuthStore } from "../../stores/useAuthStore";
 
 interface FormErrors {
   name?: string;
@@ -23,6 +24,9 @@ export default function RegisterPage() {
     validatePassword,
     validatePasswordMatch,
   } = useAuth();
+
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -53,6 +57,12 @@ export default function RegisterPage() {
 
   const clearError = (field: keyof FormErrors) =>
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div

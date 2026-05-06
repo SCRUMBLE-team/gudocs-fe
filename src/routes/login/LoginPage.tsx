@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   TextField,
@@ -8,7 +8,7 @@ import {
   FormErrorMessage,
 } from "@wanteddev/wds";
 import { useAuth } from "../../hooks/useAuth";
-import { getUser } from "../../api/auth";
+import { useAuthStore } from "../../stores/useAuthStore";
 
 interface FormErrors {
   email?: string;
@@ -16,7 +16,9 @@ interface FormErrors {
 }
 
 export default function LoginPage() {
+  const { isAuthenticated } = useAuthStore();
   const { handleLogin, validateEmail, validatePassword } = useAuth();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,13 +43,10 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    async function fetchUser() {
-      const user = await getUser();
-      console.log(user);
+    if (isAuthenticated) {
+      navigate("/");
     }
-
-    fetchUser();
-  }, []);
+  }, [isAuthenticated, navigate]);
 
   return (
     <div
