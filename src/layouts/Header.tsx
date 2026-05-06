@@ -365,14 +365,6 @@ export default function Header() {
           >
             로그인
           </Button>
-          <Button
-            variant="solid"
-            color="primary"
-            size="small"
-            onClick={() => navigate("/register")}
-          >
-            시작하기
-          </Button>
         </div>
       )}
     </header>
