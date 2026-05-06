@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp *)",
+      "WebFetch(domain:montage.wanted.co.kr)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}
