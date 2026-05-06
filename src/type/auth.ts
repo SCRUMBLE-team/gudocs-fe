@@ -1,26 +1,18 @@
-export interface SignUpRequest {
-  name: string;
+export interface User {
+  id: number;
   email: string;
+  name: string;
+}
+
+export interface SignUpRequest extends User {
   password: string;
   passwordConfirm: string;
 }
 
-export interface SignUpResponseData {
-  userId: number;
+export interface SignUpResponseData extends Omit<User, "password"> {
   name: string;
-  email: string;
 }
 
-export interface LoginRequest {
-  email: string;
+export interface LoginRequest extends Omit<User, "id" & "name"> {
   password: string;
-}
-
-export interface LoginResponseData {
-  accessToken: string;
-  user: {
-    userId: number;
-    name: string;
-    email: string;
-  };
 }

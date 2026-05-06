@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Button,
@@ -8,6 +8,7 @@ import {
   FormErrorMessage,
 } from "@wanteddev/wds";
 import { useAuth } from "../../hooks/useAuth";
+import { getUser } from "../../api/auth";
 
 interface FormErrors {
   email?: string;
@@ -38,6 +39,15 @@ export default function LoginPage() {
     setErrors({});
     handleLogin({ email, password });
   };
+
+  useEffect(() => {
+    async function fetchUser() {
+      const user = await getUser();
+      console.log(user);
+    }
+
+    fetchUser();
+  }, []);
 
   return (
     <div
