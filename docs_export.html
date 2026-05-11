@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>gudocs-fe 프론트엔드 소스코드 문서</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #1a1a2e;
+    background: #fff;
+  }
+
+  /* ── Cover Page ── */
+  .cover {
+    page-break-after: always;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #6c63ff 0%, #3b82f6 60%, #06b6d4 100%);
+    color: #fff;
+    text-align: center;
+    padding: 60px;
+  }
+  .cover .badge {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 20px;
+    padding: 6px 20px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .cover h1 {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .cover .subtitle {
+    font-size: 18px;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-bottom: 48px;
+  }
+  .cover .meta {
+    display: flex;
+    gap: 40px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 24px 40px;
+    margin-bottom: 48px;
+  }
+  .cover .meta-item { text-align: center; }
+  .cover .meta-item .label { font-size: 11px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+  .cover .meta-item .value { font-size: 15px; font-weight: 700; margin-top: 4px; }
+  .cover .date { font-size: 13px; opacity: 0.6; }
+
+  /* ── Layout ── */
+  .page { padding: 48px 56px; max-width: 860px; margin: 0 auto; }
+
+  /* ── TOC ── */
+  .toc-page { page-break-after: always; }
+  .toc-page h2 { font-size: 24px; font-weight: 700; margin-bottom: 28px; color: #6c63ff; border-bottom: 3px solid #6c63ff; padding-bottom: 12px; }
+  .toc-list { list-style: none; }
+  .toc-list li { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px dashed #e5e7eb; }
+  .toc-list li .toc-num { background: #6c63ff; color: #fff; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+  .toc-list li .toc-title { flex: 1; font-weight: 500; color: #374151; }
+  .toc-list li .toc-page-num { font-size: 12px; color: #9ca3af; }
+  .toc-sub { padding-left: 32px; }
+  .toc-sub li { border-bottom: none; padding: 4px 0; }
+  .toc-sub li .toc-title { color: #6b7280; font-weight: 400; font-size: 12px; }
+
+  /* ── Section Headings ── */
+  .section-header {
+    page-break-before: always;
+    background: linear-gradient(135deg, #6c63ff, #3b82f6);
+    color: #fff;
+    border-radius: 12px;
+    padding: 20px 28px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .section-header .sec-num {
+    background: rgba(255,255,255,0.25);
+    border-radius: 8px;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .section-header h2 { font-size: 20px; font-weight: 700; }
+  .section-header p { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+  h3 { font-size: 16px; font-weight: 700; color: #1e293b; margin: 28px 0 12px; padding-left: 12px; border-left: 4px solid #6c63ff; }
+  h4 { font-size: 14px; font-weight: 600; color: #374151; margin: 20px 0 8px; }
+
+  p { color: #4b5563; margin-bottom: 12px; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 12.5px; }
+  thead th { background: #6c63ff; color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; }
+  tbody tr:nth-child(even) { background: #f8f7ff; }
+  tbody tr:hover { background: #ede9fe; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+  tbody td:first-child { font-weight: 500; color: #374151; }
+
+  /* ── Code Blocks ── */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border-radius: 10px;
+    padding: 18px 20px;
+    font-size: 11.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    border-left: 4px solid #6c63ff;
+  }
+  code {
+    font-family: 'JetBrains Mono', 'Consolas', 'Fira Code', monospace;
+  }
+  .inline-code {
+    background: #ede9fe;
+    color: #6c63ff;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 12px;
+  }
+
+  /* ── Directory Tree ── */
+  .tree {
+    background: #0f172a;
+    color: #94a3b8;
+    border-radius: 10px;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    margin: 12px 0 24px;
+    border-left: 4px solid #3b82f6;
+  }
+  .tree .dir { color: #60a5fa; font-weight: 600; }
+  .tree .file { color: #a3e635; }
+  .tree .comment { color: #64748b; font-style: italic; }
+
+  /* ── Cards ── */
+  .card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 12px 0 20px;
+    background: #fafafa;
+  }
+  .card-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .card-title::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #6c63ff; }
+
+  /* ── Highlight Boxes ── */
+  .info-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #3b82f6;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 12px 0 20px;
+    color: #1e40af;
+    font-size: 12.5px;
+  }
+  .warn-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 12px 0 20px;
+    color: #92400e;
+    font-size: 12.5px;
+  }
+  .success-box {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-left: 4px solid #22c55e;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 12px 0 20px;
+    color: #14532d;
+    font-size: 12.5px;
+  }
+
+  /* ── Tag / Badge ── */
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-purple { background: #ede9fe; color: #7c3aed; }
+  .tag-blue { background: #dbeafe; color: #1d4ed8; }
+  .tag-green { background: #dcfce7; color: #166534; }
+  .tag-red { background: #fee2e2; color: #991b1b; }
+  .tag-gray { background: #f3f4f6; color: #374151; }
+
+  /* ── Flow Diagram ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 12px 0 20px;
+    padding: 16px 20px;
+    background: #f8f7ff;
+    border-radius: 10px;
+    border: 1px solid #ede9fe;
+  }
+  .flow-box {
+    background: #6c63ff;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .flow-box.gray { background: #6b7280; }
+  .flow-box.blue { background: #3b82f6; }
+  .flow-box.green { background: #22c55e; }
+  .flow-box.orange { background: #f59e0b; }
+  .flow-arrow { color: #9ca3af; font-size: 16px; font-weight: 700; }
+
+  /* ── Grid ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0 20px; }
+
+  /* ── Lists ── */
+  ul.custom { list-style: none; padding: 0; margin: 8px 0 16px; }
+  ul.custom li { padding: 6px 0 6px 20px; position: relative; color: #4b5563; border-bottom: 1px solid #f3f4f6; }
+  ul.custom li::before { content: '›'; position: absolute; left: 0; color: #6c63ff; font-weight: 700; font-size: 16px; }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+
+  /* ── Footer ── */
+  @media print {
+    @page { margin: 0; size: A4; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .section-header { page-break-before: always; }
+    .cover { page-break-after: always; height: 100vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="badge">Frontend Source Code Documentation</div>
+  <h1>gudocs-fe</h1>
+  <div class="subtitle">구독 관리 서비스 프론트엔드 기술 문서</div>
+  <div class="meta">
+    <div class="meta-item">
+      <div class="label">Framework</div>
+      <div class="value">React 19</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Language</div>
+      <div class="value">TypeScript 6</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Build Tool</div>
+      <div class="value">Vite 8</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">상태관리</div>
+      <div class="value">Zustand 5</div>
+    </div>
+  </div>
+  <div class="date">작성일: 2026년 05월 11일 &nbsp;|&nbsp; Repository: scrumble-team/gudocs-fe</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     TABLE OF CONTENTS
+══════════════════════════════════════════ -->
+<div class="page toc-page">
+  <h2>목차 (Table of Contents)</h2>
+  <ul class="toc-list">
+    <li>
+      <span><span class="toc-num">1</span><span class="toc-title">프로젝트 개요</span></span>
+      <span class="toc-page-num">3</span>
+    </li>
+    <li>
+      <span><span class="toc-num">2</span><span class="toc-title">기술 스택 (Tech Stack)</span></span>
+      <span class="toc-page-num">4</span>
+    </li>
+    <li>
+      <span><span class="toc-num">3</span><span class="toc-title">디렉토리 구조</span></span>
+      <span class="toc-page-num">5</span>
+    </li>
+    <li>
+      <span><span class="toc-num">4</span><span class="toc-title">앱 진입점 & 라우팅</span></span>
+      <span class="toc-page-num">6</span>
+    </li>
+    <li>
+      <span><span class="toc-num">5</span><span class="toc-title">상태 관리 (Zustand)</span></span>
+      <span class="toc-page-num">8</span>
+    </li>
+    <li>
+      <span><span class="toc-num">6</span><span class="toc-title">API 레이어</span></span>
+      <span class="toc-page-num">9</span>
+    </li>
+    <li>
+      <span><span class="toc-num">7</span><span class="toc-title">TypeScript 타입 정의</span></span>
+      <span class="toc-page-num">10</span>
+    </li>
+    <li>
+      <span><span class="toc-num">8</span><span class="toc-title">커스텀 훅 (Custom Hooks)</span></span>
+      <span class="toc-page-num">11</span>
+    </li>
+    <li>
+      <span><span class="toc-num">9</span><span class="toc-title">컴포넌트 & 레이아웃</span></span>
+      <span class="toc-page-num">12</span>
+    </li>
+    <li>
+      <span><span class="toc-num">10</span><span class="toc-title">페이지 구성</span></span>
+      <span class="toc-page-num">13</span>
+    </li>
+    <li>
+      <span><span class="toc-num">11</span><span class="toc-title">설정 파일</span></span>
+      <span class="toc-page-num">15</span>
+    </li>
+    <li>
+      <span><span class="toc-num">12</span><span class="toc-title">데이터 흐름 & 아키텍처</span></span>
+      <span class="toc-page-num">16</span>
+    </li>
+    <li>
+      <span><span class="toc-num">13</span><span class="toc-title">개발 현황 & 향후 계획</span></span>
+      <span class="toc-page-num">17</span>
+    </li>
+  </ul>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 1: PROJECT OVERVIEW
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">1</div>
+    <div>
+      <h2>프로젝트 개요</h2>
+      <p>Project Overview</p>
+    </div>
+  </div>
+
+  <h3>서비스 소개</h3>
+  <p>
+    <strong>gudocs-fe</strong>는 사용자가 여러 구독 서비스(OTT, 음악 스트리밍, 클라우드 스토리지 등)를
+    하나의 인터페이스에서 통합 관리할 수 있는 <strong>구독 관리 대시보드</strong>의 프론트엔드입니다.
+  </p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">핵심 기능 목표</div>
+      <ul class="custom">
+        <li>구독 서비스 통합 관리</li>
+        <li>월별 지출 현황 시각화</li>
+        <li>결제 예정일 알림</li>
+        <li>카테고리별 분석</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">개발 환경</div>
+      <ul class="custom">
+        <li>Node.js (ESM 모듈)</li>
+        <li>개발 서버: localhost:5173</li>
+        <li>백엔드 API: localhost:8080</li>
+        <li>패키지 매니저: npm</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>npm 스크립트</h3>
+  <table>
+    <thead>
+      <tr><th>명령어</th><th>역할</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>npm run dev</code></td><td>Vite 개발 서버 시작 (HMR 포함, localhost:5173)</td></tr>
+      <tr><td><code>npm run build</code></td><td>TypeScript 타입 검사 후 Vite 프로덕션 빌드</td></tr>
+      <tr><td><code>npm run lint</code></td><td>ESLint 코드 정적 분석 실행</td></tr>
+      <tr><td><code>npm run preview</code></td><td>프로덕션 빌드 결과물 로컬 미리보기</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 2: TECH STACK
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">2</div>
+    <div>
+      <h2>기술 스택 (Tech Stack)</h2>
+      <p>Dependencies & Development Tools</p>
+    </div>
+  </div>
+
+  <h3>핵심 의존성 (Dependencies)</h3>
+  <table>
+    <thead>
+      <tr><th>분류</th><th>패키지</th><th>버전</th><th>역할</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>UI 프레임워크</td><td>react</td><td>^19.2.5</td><td>메인 UI 라이브러리 (최신 React 19)</td></tr>
+      <tr><td>UI 프레임워크</td><td>react-dom</td><td>^19.2.5</td><td>React DOM 렌더링</td></tr>
+      <tr><td>라우팅</td><td>react-router-dom</td><td>^7.14.2</td><td>SPA 클라이언트 라우팅</td></tr>
+      <tr><td>상태 관리</td><td>zustand</td><td>^5.0.12</td><td>경량 전역 상태 관리</td></tr>
+      <tr><td>HTTP 클라이언트</td><td>axios</td><td>^1.16.0</td><td>REST API 통신</td></tr>
+      <tr><td>UI 컴포넌트</td><td>@wanteddev/wds</td><td>^3.6.0</td><td>Wanted Design System 핵심</td></tr>
+      <tr><td>UI 컴포넌트</td><td>@wanteddev/wds-icon</td><td>^3.6.0</td><td>WDS 아이콘 라이브러리</td></tr>
+      <tr><td>UI 컴포넌트</td><td>@wanteddev/wds-lottie</td><td>^3.6.0</td><td>WDS Lottie 애니메이션</td></tr>
+      <tr><td>UI 컴포넌트</td><td>@wanteddev/wds-theme</td><td>^3.6.0</td><td>WDS 테마 토큰</td></tr>
+      <tr><td>UI 컴포넌트</td><td>@wanteddev/wds-engine</td><td>^3.6.0</td><td>WDS 엔진</td></tr>
+      <tr><td>스타일링</td><td>tailwindcss</td><td>^4.2.4</td><td>유틸리티 CSS 프레임워크</td></tr>
+      <tr><td>스타일링</td><td>@tailwindcss/vite</td><td>^4.2.4</td><td>Tailwind v4 Vite 플러그인</td></tr>
+      <tr><td>폰트</td><td>pretendard</td><td>^1.3.9</td><td>한국어 최적화 프리텐다드 폰트</td></tr>
+    </tbody>
+  </table>
+
+  <h3>개발 의존성 (devDependencies)</h3>
+  <table>
+    <thead>
+      <tr><th>패키지</th><th>버전</th><th>역할</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>typescript</td><td>~6.0.2</td><td>TypeScript 컴파일러</td></tr>
+      <tr><td>vite</td><td>^8.0.10</td><td>빌드 도구 & 개발 서버</td></tr>
+      <tr><td>@vitejs/plugin-react</td><td>^6.0.1</td><td>Vite React 플러그인 (Fast Refresh)</td></tr>
+      <tr><td>eslint</td><td>^10.2.1</td><td>코드 정적 분석</td></tr>
+      <tr><td>typescript-eslint</td><td>^8.58.2</td><td>TypeScript ESLint 규칙</td></tr>
+      <tr><td>eslint-plugin-react-hooks</td><td>^7.1.1</td><td>React Hooks 규칙 검사</td></tr>
+      <tr><td>eslint-plugin-react-refresh</td><td>^0.5.2</td><td>React Refresh HMR 규칙</td></tr>
+      <tr><td>@types/react</td><td>^19.2.14</td><td>React 타입 정의</td></tr>
+      <tr><td>@types/node</td><td>^24.12.2</td><td>Node.js 타입 정의</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">
+    <strong>Wanted Design System (WDS)</strong>란?<br/>
+    원티드(Wanted Lab)에서 만든 React 기반 디자인 시스템입니다. Button, TextField, Typography, Toast 등
+    일관된 UI 컴포넌트와 디자인 토큰(CSS 변수)을 제공하며, GitHub Package Registry를 통해 설치합니다.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 3: DIRECTORY STRUCTURE
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">3</div>
+    <div>
+      <h2>디렉토리 구조</h2>
+      <p>Project Directory & File Structure</p>
+    </div>
+  </div>
+
+  <div class="tree">
+<span class="dir">gudocs-fe/</span>
+├── <span class="dir">public/</span>                        <span class="comment"># 정적 에셋 (favicon, 아이콘 스프라이트 등)</span>
+│   ├── favicon.svg
+│   └── icons.svg
+│
+├── <span class="dir">src/</span>                           <span class="comment"># 메인 소스 코드</span>
+│   ├── <span class="dir">api/</span>                       <span class="comment"># API 통신 레이어</span>
+│   │   ├── <span class="file">instance.ts</span>            <span class="comment"># axios 인스턴스 설정 (baseURL, timeout, cookies)</span>
+│   │   └── <span class="file">auth.ts</span>                <span class="comment"># 인증 관련 API 함수 (login, signup, logout, getUser)</span>
+│   │
+│   ├── <span class="dir">components/</span>                <span class="comment"># 공유 컴포넌트</span>
+│   │   ├── <span class="file">AuthProvider.tsx</span>        <span class="comment"># 앱 마운트 시 사용자 정보 초기화</span>
+│   │   └── <span class="file">PrivateRoute.tsx</span>        <span class="comment"># 인증 필요 라우트 보호</span>
+│   │
+│   ├── <span class="dir">hooks/</span>                     <span class="comment"># 커스텀 React 훅</span>
+│   │   └── <span class="file">useAuth.ts</span>             <span class="comment"># 인증 비즈니스 로직 (로그인, 회원가입, 유효성 검사)</span>
+│   │
+│   ├── <span class="dir">layouts/</span>                   <span class="comment"># 레이아웃 컴포넌트</span>
+│   │   └── <span class="file">Header.tsx</span>             <span class="comment"># 공통 헤더 (로고, 사용자 드롭다운)</span>
+│   │
+│   ├── <span class="dir">routes/</span>                    <span class="comment"># 페이지 컴포넌트 (라우트별 분리)</span>
+│   │   ├── <span class="dir">login/</span>
+│   │   │   └── <span class="file">LoginPage.tsx</span>       <span class="comment"># 로그인 페이지</span>
+│   │   ├── <span class="dir">register/</span>
+│   │   │   └── <span class="file">RegisterPage.tsx</span>    <span class="comment"># 회원가입 페이지</span>
+│   │   ├── <span class="dir">dashboard/</span>
+│   │   │   └── <span class="file">DashboardPage.tsx</span>   <span class="comment"># 대시보드 메인 (개발 중)</span>
+│   │   └── <span class="dir">mypage/</span>
+│   │       └── <span class="file">MyPage.tsx</span>          <span class="comment"># 마이페이지 (프로필, 비밀번호, 탈퇴)</span>
+│   │
+│   ├── <span class="dir">stores/</span>                    <span class="comment"># Zustand 전역 상태</span>
+│   │   └── <span class="file">useAuthStore.ts</span>        <span class="comment"># 인증 상태 스토어 (user, isAuthenticated)</span>
+│   │
+│   ├── <span class="dir">type/</span>                      <span class="comment"># TypeScript 타입 정의</span>
+│   │   ├── <span class="file">api.ts</span>                 <span class="comment"># 공통 API 응답 타입 ApiResponse&lt;T&gt;</span>
+│   │   └── <span class="file">auth.ts</span>                <span class="comment"># 인증 관련 타입 (User, LoginRequest, SignUpRequest)</span>
+│   │
+│   ├── <span class="file">App.tsx</span>                    <span class="comment"># 루트 컴포넌트 + 라우터 정의</span>
+│   ├── <span class="file">main.tsx</span>                   <span class="comment"># React 앱 진입점 (ThemeProvider 설정)</span>
+│   └── <span class="file">index.css</span>                  <span class="comment"># 전역 스타일 (Tailwind, Pretendard 폰트)</span>
+│
+├── <span class="file">index.html</span>                     <span class="comment"># HTML 진입점</span>
+├── <span class="file">vite.config.ts</span>                 <span class="comment"># Vite 빌드 설정</span>
+├── <span class="file">tsconfig.json</span>                  <span class="comment"># TypeScript 설정 (참조 루트)</span>
+├── <span class="file">tsconfig.app.json</span>              <span class="comment"># 앱 TypeScript 설정 (ES2023, strict)</span>
+├── <span class="file">eslint.config.js</span>               <span class="comment"># ESLint flat config</span>
+├── <span class="file">Claude.md</span>                      <span class="comment"># 프로젝트 아키텍처 가이드</span>
+├── <span class="file">design.md</span>                      <span class="comment"># WDS 스타일 가이드</span>
+└── <span class="file">README.md</span>                      <span class="comment"># 프로젝트 소개 및 설치 안내</span>
+  </div>
+
+  <div class="info-box">
+    <strong>폴더 네이밍 규칙:</strong> 폴더명은 <code>kebab-case</code>,
+    파일명은 <code>PascalCase</code>(컴포넌트) 또는 <code>camelCase</code>(훅/유틸)를 사용합니다.
+    페이지는 <code>routes/</code> 안에 도메인별로 분리합니다.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 4: ENTRY POINTS & ROUTING
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">4</div>
+    <div>
+      <h2>앱 진입점 & 라우팅</h2>
+      <p>Entry Points & Client-Side Routing</p>
+    </div>
+  </div>
+
+  <h3>앱 부팅 순서</h3>
+  <div class="flow">
+    <div class="flow-box blue">index.html</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">main.tsx</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box orange">ThemeProvider</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">App.tsx</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box green">AuthProvider</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">각 Page 컴포넌트</div>
+  </div>
+
+  <h3>main.tsx — React 앱 마운트</h3>
+  <pre><code>// src/main.tsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "pretendard/dist/web/static/pretendard.css"; // 한국어 폰트
+import "./index.css";                                // Tailwind + 전역 스타일
+import App from "./App.tsx";
+import { ThemeProvider } from "@wanteddev/wds";      // WDS 테마 적용
+import "@wanteddev/wds/global.css";
+
+createRoot(document.getElementById("root")!).render(
+  &lt;StrictMode&gt;
+    &lt;ThemeProvider&gt;   {/* WDS 디자인 토큰 & 컴포넌트 활성화 */}
+      &lt;App /&gt;
+    &lt;/ThemeProvider&gt;
+  &lt;/StrictMode&gt;,
+);</code></pre>
+
+  <h3>App.tsx — 라우트 정의</h3>
+  <pre><code>// src/App.tsx
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;AuthProvider&gt;       {/* 앱 시작 시 로그인 상태 복구 */}
+        &lt;Routes&gt;
+          &lt;Route path="/login"       element={&lt;LoginPage /&gt;} /&gt;
+          &lt;Route path="/register"    element={&lt;RegisterPage /&gt;} /&gt;
+          &lt;Route path="/dashboard/*" element={&lt;DashboardPage /&gt;} /&gt;
+          &lt;Route path="/mypage"      element={&lt;MyPage /&gt;} /&gt;
+          &lt;Route path="*"            element={&lt;Navigate to="/dashboard" replace /&gt;} /&gt;
+        &lt;/Routes&gt;
+      &lt;/AuthProvider&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</code></pre>
+
+  <h3>라우트 구조 요약</h3>
+  <table>
+    <thead>
+      <tr><th>경로</th><th>컴포넌트</th><th>설명</th><th>인증 필요</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/login</code></td>
+        <td>LoginPage</td>
+        <td>로그인 폼</td>
+        <td><span class="tag tag-gray">불필요</span></td>
+      </tr>
+      <tr>
+        <td><code>/register</code></td>
+        <td>RegisterPage</td>
+        <td>회원가입 폼</td>
+        <td><span class="tag tag-gray">불필요</span></td>
+      </tr>
+      <tr>
+        <td><code>/dashboard/*</code></td>
+        <td>DashboardPage</td>
+        <td>메인 대시보드 (개발 중)</td>
+        <td><span class="tag tag-purple">필요</span></td>
+      </tr>
+      <tr>
+        <td><code>/mypage</code></td>
+        <td>MyPage</td>
+        <td>프로필 관리</td>
+        <td><span class="tag tag-purple">필요</span></td>
+      </tr>
+      <tr>
+        <td><code>*</code></td>
+        <td>Navigate</td>
+        <td>정의되지 않은 경로 → 대시보드로 리다이렉트</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 5: STATE MANAGEMENT
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">5</div>
+    <div>
+      <h2>상태 관리 (Zustand)</h2>
+      <p>Global State Management with Zustand 5</p>
+    </div>
+  </div>
+
+  <p>
+    이 프로젝트는 <strong>Zustand</strong>를 사용해 전역 상태를 관리합니다.
+    Redux보다 훨씬 적은 보일러플레이트로 동일한 기능을 구현할 수 있는 경량 상태 관리 라이브러리입니다.
+  </p>
+
+  <h3>useAuthStore — 인증 상태</h3>
+  <pre><code>// src/stores/useAuthStore.ts
+import { create } from "zustand";
+import type { User } from "../type/auth";
+
+interface AuthStore {
+  user: User | null;          // 로그인된 사용자 정보 (없으면 null)
+  isAuthenticated: boolean;   // 로그인 여부 플래그
+  setUser: (user: User) => void;  // 로그인 성공 시 호출
+  logout: () => void;             // 로그아웃 시 호출
+}
+
+export const useAuthStore = create&lt;AuthStore&gt;((set) => ({
+  user: null,
+  isAuthenticated: false,
+  setUser: (user) => set({ user, isAuthenticated: true }),
+  logout: () => set({ user: null, isAuthenticated: false }),
+}));</code></pre>
+
+  <h3>스토어 구조</h3>
+  <table>
+    <thead>
+      <tr><th>항목</th><th>타입</th><th>설명</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>user</td><td>User | null</td><td>현재 로그인된 사용자 객체 (id, email, name)</td></tr>
+      <tr><td>isAuthenticated</td><td>boolean</td><td>인증 여부 — PrivateRoute에서 사용</td></tr>
+      <tr><td>setUser(user)</td><td>Action</td><td>user 저장 + isAuthenticated = true 설정</td></tr>
+      <tr><td>logout()</td><td>Action</td><td>user = null + isAuthenticated = false 초기화</td></tr>
+    </tbody>
+  </table>
+
+  <h3>컴포넌트에서 사용하는 방법</h3>
+  <pre><code>// 전체 스토어 구독
+const { user, isAuthenticated, setUser, logout } = useAuthStore();
+
+// 특정 값만 구독 (성능 최적화 — 불필요한 리렌더링 방지)
+const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+const user = useAuthStore((state) => state.user);</code></pre>
+
+  <div class="info-box">
+    <strong>Zustand vs Redux:</strong> Zustand는 Provider 래핑 없이 바로 사용 가능하고,
+    보일러플레이트가 거의 없습니다. 현재 프로젝트처럼 인증 상태 등 단순한 전역 상태에 적합합니다.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 6: API LAYER
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">6</div>
+    <div>
+      <h2>API 레이어</h2>
+      <p>HTTP Communication with Axios</p>
+    </div>
+  </div>
+
+  <h3>axios 인스턴스 설정</h3>
+  <pre><code>// src/api/instance.ts
+import axios from "axios";
+
+export const server_axiosInstance = axios.create({
+  baseURL: "http://localhost:8080", // Spring Boot 백엔드 서버
+  timeout: 200000,                  // 200초 타임아웃
+  withCredentials: true,            // 쿠키(세션) 자동 포함
+});</code></pre>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">설정 설명</div>
+      <ul class="custom">
+        <li><strong>baseURL</strong>: Spring Boot 백엔드 주소</li>
+        <li><strong>timeout</strong>: 200초 (파일 업로드 등 대비)</li>
+        <li><strong>withCredentials</strong>: HttpOnly 쿠키 기반 세션 인증</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">인증 방식</div>
+      <ul class="custom">
+        <li>쿠키 기반 세션 인증</li>
+        <li>로그인 시 서버가 Set-Cookie 응답</li>
+        <li>이후 요청에 자동으로 쿠키 전송</li>
+        <li>CORS 설정 필요 (백엔드)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>인증 API 함수</h3>
+  <pre><code>// src/api/auth.ts
+// 회원가입
+export async function signUp(data: SignUpRequest): Promise&lt;ApiResponse&lt;SignUpResponseData&gt;&gt; {
+  const response = await server_axiosInstance.post("/api/auth/signup", data);
+  return response.data;
+}
+
+// 로그인
+export async function login(data: LoginRequest) {
+  const response = await server_axiosInstance.post("/api/auth/login", data);
+  return response.data;
+}
+
+// 로그아웃
+export async function logout() {
+  const response = await server_axiosInstance.post("/api/auth/logout");
+  return response.data;
+}
+
+// 현재 사용자 정보 조회 (세션 유지 확인)
+export async function getUser(): Promise&lt;ApiResponse&lt;User&gt;&gt; {
+  const response = await server_axiosInstance.get("/api/auth/me");
+  return response.data;
+}</code></pre>
+
+  <h3>API 엔드포인트 목록</h3>
+  <table>
+    <thead>
+      <tr><th>Method</th><th>경로</th><th>함수명</th><th>설명</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tag tag-green">POST</span></td><td>/api/auth/signup</td><td>signUp</td><td>신규 사용자 등록</td></tr>
+      <tr><td><span class="tag tag-green">POST</span></td><td>/api/auth/login</td><td>login</td><td>이메일/비밀번호 로그인</td></tr>
+      <tr><td><span class="tag tag-green">POST</span></td><td>/api/auth/logout</td><td>logout</td><td>세션 종료</td></tr>
+      <tr><td><span class="tag tag-blue">GET</span></td><td>/api/auth/me</td><td>getUser</td><td>현재 로그인 사용자 조회</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 7: TYPE DEFINITIONS
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">7</div>
+    <div>
+      <h2>TypeScript 타입 정의</h2>
+      <p>Type Definitions &amp; Interfaces</p>
+    </div>
+  </div>
+
+  <h3>공통 API 응답 타입 (src/type/api.ts)</h3>
+  <pre><code>// src/type/api.ts
+export interface ApiResponse&lt;T&gt; {
+  message: string;   // 서버 응답 메시지
+  success: boolean;  // 성공 여부
+  data: T;           // 제네릭 — 실제 응답 데이터
+}</code></pre>
+
+  <div class="info-box">
+    <strong>제네릭 활용:</strong> <code>ApiResponse&lt;T&gt;</code>를 사용하면 모든 API의 응답 구조가 통일되면서도,
+    각 API마다 다른 데이터 타입을 타입 안전하게 사용할 수 있습니다.
+    예: <code>ApiResponse&lt;User&gt;</code>, <code>ApiResponse&lt;SignUpResponseData&gt;</code>
+  </div>
+
+  <h3>인증 관련 타입 (src/type/auth.ts)</h3>
+  <pre><code>// src/type/auth.ts
+
+// 사용자 기본 정보
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+}
+
+// 회원가입 요청 (User에서 id 제외 + 비밀번호 필드 추가)
+export interface SignUpRequest extends Omit&lt;User, "id"&gt; {
+  password: string;
+  passwordConfirm: string;
+}
+
+// 회원가입 응답 데이터
+export interface SignUpResponseData extends Omit&lt;User, "password"&gt; {
+  name: string;
+}
+
+// 로그인 요청 (email + password만)
+export interface LoginRequest extends Omit&lt;User, "id" | "name"&gt; {
+  password: string;
+}</code></pre>
+
+  <h3>타입 상속 구조</h3>
+  <table>
+    <thead>
+      <tr><th>타입</th><th>베이스</th><th>필드</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>User</td><td>—</td><td>id, email, name</td></tr>
+      <tr><td>SignUpRequest</td><td>User (id 제외)</td><td>email, name, password, passwordConfirm</td></tr>
+      <tr><td>SignUpResponseData</td><td>User</td><td>id, email, name</td></tr>
+      <tr><td>LoginRequest</td><td>User (id, name 제외)</td><td>email, password</td></tr>
+    </tbody>
+  </table>
+
+  <div class="success-box">
+    <strong>TypeScript Strict Mode 활성화:</strong> <code>tsconfig.app.json</code>에서 strict 옵션이 모두 켜져 있어
+    <code>any</code> 타입 사용 금지, 미사용 변수 오류, nullish 체크 등을 컴파일 타임에 강제합니다.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 8: CUSTOM HOOKS
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">8</div>
+    <div>
+      <h2>커스텀 훅 (Custom Hooks)</h2>
+      <p>Business Logic Abstraction via React Hooks</p>
+    </div>
+  </div>
+
+  <p>
+    이 프로젝트는 비즈니스 로직을 컴포넌트에서 분리하기 위해 커스텀 훅 패턴을 사용합니다.
+    컴포넌트는 UI 렌더링만 담당하고, 로직은 훅에서 처리합니다.
+  </p>
+
+  <h3>useAuth — 인증 로직 훅 (src/hooks/useAuth.ts)</h3>
+
+  <table>
+    <thead>
+      <tr><th>함수/값</th><th>타입</th><th>설명</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>validateEmail</td><td>(email: string) → boolean</td><td>이메일 형식 정규식 검증</td></tr>
+      <tr><td>validatePassword</td><td>(password: string) → boolean</td><td>비밀번호 최소 8자 검증</td></tr>
+      <tr><td>validatePasswordMatch</td><td>(pw, confirm) → boolean</td><td>비밀번호 일치 여부 검증</td></tr>
+      <tr><td>handleLogin</td><td>({ email, password }) → Promise</td><td>로그인 API 호출 → 스토어 업데이트 → 대시보드 이동</td></tr>
+      <tr><td>handleRegister</td><td>(SignUpRequest) → Promise</td><td>회원가입 API 호출 → 성공 토스트 → 로그인 이동</td></tr>
+      <tr><td>handleLogout</td><td>() → void</td><td>로그아웃 API 호출 → 스토어 초기화 → 로그인 이동</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code>// 사용 예 (LoginPage.tsx)
+const { handleLogin, validateEmail, validatePassword } = useAuth();
+
+const onSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  if (!validateEmail(email)) { setEmailError("올바른 이메일 형식이 아닙니다."); return; }
+  if (!validatePassword(password)) { setPasswordError("8자 이상 입력해주세요."); return; }
+  await handleLogin({ email, password });
+};</code></pre>
+
+  <div class="info-box">
+    <strong>훅 분리의 장점:</strong> 같은 유효성 검사 로직을 LoginPage와 RegisterPage 양쪽에서 재사용합니다.
+    컴포넌트 파일이 UI 로직만 담아 가독성이 높아집니다.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 9: COMPONENTS & LAYOUTS
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">9</div>
+    <div>
+      <h2>컴포넌트 & 레이아웃</h2>
+      <p>Shared Components &amp; Layout Structure</p>
+    </div>
+  </div>
+
+  <h3>AuthProvider (src/components/AuthProvider.tsx)</h3>
+  <p>앱이 처음 로드될 때 서버에 <code>GET /api/auth/me</code>를 호출하여 세션이 유효한지 확인하고,
+  Zustand 스토어의 인증 상태를 복구합니다.</p>
+
+  <pre><code>// 앱 시작 시 자동으로 실행되는 인증 상태 복구 로직
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const { data } = await getUser();  // GET /api/auth/me
+      setUser(data);                     // 세션 유효 → 스토어에 유저 저장
+    } catch {
+      logout();                          // 세션 만료 → 인증 상태 초기화
+    }
+  };
+  fetchUser();
+}, []);</code></pre>
+
+  <h3>PrivateRoute (src/components/PrivateRoute.tsx)</h3>
+  <p>인증이 필요한 페이지를 감싸는 래퍼입니다. 로그인되지 않은 상태에서 접근하면 자동으로 로그인 페이지로 이동합니다.</p>
+  <pre><code>// 사용 예 (App.tsx에서 보호할 Route를 감쌀 때)
+&lt;Route path="/mypage" element={
+  &lt;PrivateRoute&gt;
+    &lt;MyPage /&gt;
+  &lt;/PrivateRoute&gt;
+} /&gt;</code></pre>
+
+  <h3>Header Layout (src/layouts/Header.tsx)</h3>
+  <p>모든 페이지 상단에 표시되는 공통 헤더입니다. 인증 상태에 따라 다른 UI를 보여줍니다.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">로그인 상태</div>
+      <ul class="custom">
+        <li>G 로고 + "구독 관리" 텍스트 (대시보드 링크)</li>
+        <li>사용자 이니셜 아바타 (보라 그라디언트)</li>
+        <li>사용자 이름 표시</li>
+        <li>드롭다운 메뉴 (마이페이지 / 로그아웃)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">비로그인 상태</div>
+      <ul class="custom">
+        <li>G 로고 + "구독 관리" 텍스트 (홈 링크)</li>
+        <li>"로그인" 버튼</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 10: PAGES
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">10</div>
+    <div>
+      <h2>페이지 구성</h2>
+      <p>Page Components (routes/)</p>
+    </div>
+  </div>
+
+  <h3>LoginPage (src/routes/login/LoginPage.tsx)</h3>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>레이아웃</td><td>화면 중앙 카드 형태</td></tr>
+      <tr><td>입력 필드</td><td>이메일, 비밀번호</td></tr>
+      <tr><td>유효성 검사</td><td>이메일 정규식, 비밀번호 8자 이상</td></tr>
+      <tr><td>에러 처리</td><td>WDS FormErrorMessage 컴포넌트로 필드 하단에 표시</td></tr>
+      <tr><td>성공 처리</td><td>/dashboard 로 이동</td></tr>
+      <tr><td>기타</td><td>이미 로그인된 경우 /dashboard 로 자동 리다이렉트, 회원가입 링크</td></tr>
+    </tbody>
+  </table>
+
+  <h3>RegisterPage (src/routes/register/RegisterPage.tsx)</h3>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>레이아웃</td><td>화면 중앙 카드 형태</td></tr>
+      <tr><td>입력 필드</td><td>이름, 이메일, 비밀번호, 비밀번호 확인 (총 4개)</td></tr>
+      <tr><td>유효성 검사</td><td>이메일 형식, 비밀번호 8자 이상, 비밀번호 일치 여부</td></tr>
+      <tr><td>에러 처리</td><td>각 필드 하단에 인라인 에러 메시지</td></tr>
+      <tr><td>성공 처리</td><td>성공 토스트 알림 후 /login 이동</td></tr>
+      <tr><td>기타</td><td>이미 로그인된 경우 /dashboard 리다이렉트, 로그인 링크</td></tr>
+    </tbody>
+  </table>
+
+  <h3>DashboardPage (src/routes/dashboard/DashboardPage.tsx)</h3>
+  <div class="warn-box">
+    현재 개발 중(WIP)인 페이지입니다. Header + "대시보드" 제목만 표시되는 플레이스홀더 상태이며,
+    구독 목록, 월별 지출, 알림 기능은 향후 구현 예정입니다.
+  </div>
+
+  <h3>MyPage (src/routes/mypage/MyPage.tsx)</h3>
+  <p>사용자 프로필 관리 페이지입니다. 세 가지 섹션으로 구성됩니다.</p>
+  <table>
+    <thead><tr><th>섹션</th><th>기능</th><th>구현 상태</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>프로필 카드</td>
+        <td>이니셜 아바타, 이름, 이메일, 인증 배지</td>
+        <td><span class="tag tag-green">완료</span></td>
+      </tr>
+      <tr>
+        <td>기본 정보</td>
+        <td>이름 수정 (저장/취소), 이메일 (읽기 전용)</td>
+        <td><span class="tag tag-green">완료</span></td>
+      </tr>
+      <tr>
+        <td>비밀번호 변경</td>
+        <td>현재 비밀번호, 새 비밀번호, 확인 입력</td>
+        <td><span class="tag tag-blue">API 연동 대기</span></td>
+      </tr>
+      <tr>
+        <td>위험 영역</td>
+        <td>계정 삭제 (비밀번호 재확인 후 삭제)</td>
+        <td><span class="tag tag-blue">API 연동 대기</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 11: CONFIGURATION FILES
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">11</div>
+    <div>
+      <h2>설정 파일</h2>
+      <p>Configuration Files</p>
+    </div>
+  </div>
+
+  <h3>vite.config.ts — 빌드 설정</h3>
+  <pre><code>// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";      // React Fast Refresh (HMR)
+import tailwindcss from "@tailwindcss/vite";   // Tailwind v4 (별도 postcss 불필요)
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});</code></pre>
+
+  <h3>tsconfig.app.json — TypeScript 설정</h3>
+  <table>
+    <thead><tr><th>옵션</th><th>값</th><th>의미</th></tr></thead>
+    <tbody>
+      <tr><td>target</td><td>ES2023</td><td>최신 JS 문법 사용 가능</td></tr>
+      <tr><td>module</td><td>ESNext</td><td>ESM 모듈 시스템</td></tr>
+      <tr><td>jsx</td><td>react-jsx</td><td>자동 JSX Transform (import React 불필요)</td></tr>
+      <tr><td>moduleResolution</td><td>bundler</td><td>Vite 번들러 기반 모듈 해석</td></tr>
+      <tr><td>strict</td><td>true</td><td>엄격한 타입 검사 활성화</td></tr>
+      <tr><td>noUnusedLocals</td><td>true</td><td>미사용 변수 오류 처리</td></tr>
+      <tr><td>noUnusedParameters</td><td>true</td><td>미사용 파라미터 오류 처리</td></tr>
+      <tr><td>noFallthroughCasesInSwitch</td><td>true</td><td>switch 문 fallthrough 방지</td></tr>
+    </tbody>
+  </table>
+
+  <h3>eslint.config.js — 코드 품질</h3>
+  <table>
+    <thead><tr><th>플러그인</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td>@eslint/js recommended</td><td>기본 JavaScript 규칙</td></tr>
+      <tr><td>typescript-eslint recommended</td><td>TypeScript 전용 규칙 (any 사용 경고 등)</td></tr>
+      <tr><td>eslint-plugin-react-hooks</td><td>useEffect 의존성 배열, Hook 호출 순서 등</td></tr>
+      <tr><td>eslint-plugin-react-refresh</td><td>Vite HMR과 호환되는 컴포넌트 구조 강제</td></tr>
+    </tbody>
+  </table>
+
+  <h3>index.css — 전역 스타일</h3>
+  <pre><code>/* src/index.css */
+@import "tailwindcss";   /* Tailwind v4 유틸리티 클래스 활성화 */
+
+@theme {
+  --font-sans: "Pretendard", sans-serif;  /* Tailwind의 기본 sans 폰트 재정의 */
+}
+
+* {
+  font-family: "Pretendard", sans-serif;  /* 전체 요소에 Pretendard 폰트 적용 */
+}</code></pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 12: DATA FLOW & ARCHITECTURE
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">12</div>
+    <div>
+      <h2>데이터 흐름 & 아키텍처</h2>
+      <p>Data Flow &amp; Application Architecture</p>
+    </div>
+  </div>
+
+  <h3>로그인 데이터 흐름</h3>
+  <div class="flow">
+    <div class="flow-box blue">사용자 입력</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">LoginPage<br/><small style="font-weight:400;font-size:10px">유효성 검사</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">useAuth Hook<br/><small style="font-weight:400;font-size:10px">handleLogin()</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box orange">api/auth.ts<br/><small style="font-weight:400;font-size:10px">POST /api/auth/login</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box green">useAuthStore<br/><small style="font-weight:400;font-size:10px">setUser()</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">/dashboard<br/><small style="font-weight:400;font-size:10px">navigate()</small></div>
+  </div>
+
+  <h3>앱 초기화 흐름 (새로고침 시)</h3>
+  <div class="flow">
+    <div class="flow-box blue">페이지 로드</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">AuthProvider<br/><small style="font-weight:400;font-size:10px">useEffect</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box orange">GET /api/auth/me</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box green">성공: setUser()</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">isAuthenticated = true</div>
+  </div>
+  <div class="flow" style="margin-top:-12px">
+    <div class="flow-box blue">페이지 로드</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">AuthProvider</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box orange">GET /api/auth/me</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box gray">실패: logout()</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box">isAuthenticated = false</div>
+  </div>
+
+  <h3>전체 아키텍처 계층 구조</h3>
+  <table>
+    <thead><tr><th>계층</th><th>파일</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td>진입점</td><td>main.tsx, App.tsx</td><td>앱 부팅, ThemeProvider, BrowserRouter, 라우트 정의</td></tr>
+      <tr><td>페이지 (View)</td><td>routes/**/*Page.tsx</td><td>UI 렌더링, 사용자 입력 처리, 훅 호출</td></tr>
+      <tr><td>레이아웃</td><td>layouts/Header.tsx</td><td>공통 UI 구조</td></tr>
+      <tr><td>공유 컴포넌트</td><td>components/*.tsx</td><td>AuthProvider, PrivateRoute — 횡단 관심사</td></tr>
+      <tr><td>비즈니스 로직</td><td>hooks/useAuth.ts</td><td>API 호출 조율, 유효성 검사, 라우팅 결정</td></tr>
+      <tr><td>전역 상태</td><td>stores/useAuthStore.ts</td><td>Zustand — 앱 전체 공유 상태</td></tr>
+      <tr><td>API 레이어</td><td>api/instance.ts, api/auth.ts</td><td>axios 설정, HTTP 요청 함수</td></tr>
+      <tr><td>타입 정의</td><td>type/api.ts, type/auth.ts</td><td>TypeScript 인터페이스</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">
+    <strong>설계 원칙:</strong> 각 계층은 단일 책임을 가집니다. 페이지 컴포넌트는 UI만,
+    훅은 로직만, API 레이어는 HTTP 통신만 담당합니다. 이를 통해 유지보수성과 테스트 용이성을 높입니다.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 13: DEVELOPMENT STATUS
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-header">
+    <div class="sec-num">13</div>
+    <div>
+      <h2>개발 현황 & 향후 계획</h2>
+      <p>Development Status &amp; Backlog</p>
+    </div>
+  </div>
+
+  <h3>구현 완료 기능</h3>
+  <table>
+    <thead><tr><th>도메인</th><th>기능</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td>인증</td><td>이메일/비밀번호 로그인</td><td><span class="tag tag-green">완료</span></td></tr>
+      <tr><td>인증</td><td>회원가입 (이름, 이메일, 비밀번호)</td><td><span class="tag tag-green">완료</span></td></tr>
+      <tr><td>인증</td><td>로그아웃</td><td><span class="tag tag-green">완료</span></td></tr>
+      <tr><td>인증</td><td>세션 유지 (새로고침 후 로그인 상태 복구)</td><td><span class="tag tag-green">완료</span></td></tr>
+      <tr><td>마이페이지</td><td>사용자 정보 조회</td><td><span class="tag tag-green">완료</span></td></tr>
+      <tr><td>마이페이지</td><td>이름 수정</td><td><span class="tag tag-green">완료 (UI)</span></td></tr>
+      <tr><td>마이페이지</td><td>비밀번호 변경</td><td><span class="tag tag-blue">API 연동 대기</span></td></tr>
+      <tr><td>마이페이지</td><td>계정 삭제</td><td><span class="tag tag-blue">API 연동 대기</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>향후 구현 예정 기능 (Backlog)</h3>
+  <table>
+    <thead><tr><th>도메인</th><th>기능</th></tr></thead>
+    <tbody>
+      <tr><td>구독 관리</td><td>구독 목록 조회, 구독 상세, 구독 추가/수정/삭제, 일시정지/재개</td></tr>
+      <tr><td>대시보드</td><td>메인 화면 — 구독 카드 목록, 월별 지출 요약</td></tr>
+      <tr><td>지출 분석</td><td>월별 총액, 카테고리별 분류, 6개월 추이 차트, CSV 내보내기</td></tr>
+      <tr><td>알림</td><td>알림 설정, 미읽음 배지, 읽음 처리, 삭제</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn-box">
+    현재 프로젝트는 <strong>인증(Auth) 기반 기능 구현이 완료</strong>된 단계이며,
+    구독 관리 및 분석 기능은 백엔드 API 개발과 병행하여 순차적으로 추가될 예정입니다.
+  </div>
+
+  <hr class="divider"/>
+
+  <h3>코딩 컨벤션 요약</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">필수 규칙</div>
+      <ul class="custom">
+        <li>TypeScript strict 모드 필수</li>
+        <li>함수형 컴포넌트만 사용</li>
+        <li><code>any</code> 타입 사용 금지</li>
+        <li>비즈니스 로직은 커스텀 훅으로 분리</li>
+        <li>옵셔널 체이닝(<code>?.</code>) 활용</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">스타일 규칙</div>
+      <ul class="custom">
+        <li>WDS 컴포넌트 우선 사용</li>
+        <li>커스텀 CSS 최소화</li>
+        <li>Tailwind 유틸리티 클래스 활용</li>
+        <li>토스트 알림은 WDS useToast 사용</li>
+        <li>확인 모달은 WDS Modal 사용</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+  <p style="text-align:center; color:#9ca3af; font-size:11px; margin-top:20px;">
+    gudocs-fe Frontend Source Code Documentation &nbsp;|&nbsp; 2026.05.11 &nbsp;|&nbsp; scrumble-team/gudocs-fe
+  </p>
+</div>
+
+</body>
+</html>
