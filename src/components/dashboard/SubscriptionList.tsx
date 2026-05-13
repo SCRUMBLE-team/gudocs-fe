@@ -1,8 +1,18 @@
 import { useState } from "react";
 import { Typography } from "@wanteddev/wds";
-import type { SubscribeCategory, SubscribeStatus, SubscriptionDetail } from "../../type/subscribe";
+import type {
+  SubscribeCategory,
+  SubscribeStatus,
+  SubscriptionDetail,
+} from "../../type/subscribe";
 import { CATEGORY_META, BILLING_CYCLE_META } from "../../type/subscribe";
-import { formatKRW, getDDayLabel, getDaysUntil, getNextBillingDate } from "../../utils/format";
+import {
+  formatKRW,
+  getDDayLabel,
+  getDaysUntil,
+  getNextBillingDate,
+} from "../../utils/format";
+import { useNavigate } from "react-router-dom";
 
 interface SubscriptionListProps {
   subscriptions: SubscriptionDetail[];
@@ -40,7 +50,7 @@ function StatusToggle({
 }) {
   return (
     <button
-      onClick={() => onChange(!active)}
+      onClick={(e) => { e.stopPropagation(); onChange(!active); }}
       title={active ? "클릭하여 일시정지" : "클릭하여 활성화"}
       style={{
         display: "inline-flex",
@@ -95,13 +105,22 @@ function StatusToggle({
   );
 }
 
-export default function SubscriptionList({ subscriptions }: SubscriptionListProps) {
-  const [statusFilter, setStatusFilter] = useState<SubscribeStatus | "ALL">("ALL");
-  const [categoryFilter, setCategoryFilter] = useState<SubscribeCategory | "ALL">("ALL");
+export default function SubscriptionList({
+  subscriptions,
+}: SubscriptionListProps) {
+  const navigate = useNavigate();
+  const [statusFilter, setStatusFilter] = useState<SubscribeStatus | "ALL">(
+    "ALL",
+  );
+  const [categoryFilter, setCategoryFilter] = useState<
+    SubscribeCategory | "ALL"
+  >("ALL");
   const [sortKey, setSortKey] = useState<SortKey>("billingDate");
 
   // local status overrides: subscriptionId → SubscribeStatus
-  const [localStatuses, setLocalStatuses] = useState<Record<number, SubscribeStatus>>(() =>
+  const [localStatuses, setLocalStatuses] = useState<
+    Record<number, SubscribeStatus>
+  >(() =>
     Object.fromEntries(subscriptions.map((s) => [s.subscriptionId, s.status])),
   );
 
@@ -115,14 +134,21 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
   const withBillingDate = subscriptions.map((s) => ({
     ...s,
     status: localStatuses[s.subscriptionId] ?? s.status,
-    nextBillingDate: getNextBillingDate(s.billingDay, s.billingCycle, s.billingMonth),
+    nextBillingDate: getNextBillingDate(
+      s.billingDay,
+      s.billingCycle,
+      s.billingMonth,
+    ),
   }));
 
   const filtered = withBillingDate
     .filter((s) => statusFilter === "ALL" || s.status === statusFilter)
     .filter((s) => categoryFilter === "ALL" || s.category === categoryFilter)
     .sort((a, b) => {
-      if (sortKey === "billingDate") return getDaysUntil(a.nextBillingDate) - getDaysUntil(b.nextBillingDate);
+      if (sortKey === "billingDate")
+        return (
+          getDaysUntil(a.nextBillingDate) - getDaysUntil(b.nextBillingDate)
+        );
       if (sortKey === "amount") return b.price - a.price;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
@@ -163,7 +189,11 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
           gap: "12px",
         }}
       >
-        <Typography variant="label1" weight="bold" color="semantic.label.normal">
+        <Typography
+          variant="label1"
+          weight="bold"
+          color="semantic.label.normal"
+        >
           전체 구독 ({filtered.length}개)
         </Typography>
 
@@ -243,7 +273,14 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ backgroundColor: "#f6f9fc" }}>
-                  {["서비스", "카테고리", "결제 주기", "다음 결제일", "금액", "상태"].map((h) => (
+                  {[
+                    "서비스",
+                    "카테고리",
+                    "결제 주기",
+                    "다음 결제일",
+                    "금액",
+                    "상태",
+                  ].map((h) => (
                     <th
                       key={h}
                       style={{
@@ -272,25 +309,44 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
                   return (
                     <tr
                       key={sub.subscriptionId}
-                      style={{ opacity: isPaused ? 0.6 : 1, transition: "opacity 0.2s" }}
+                      onClick={() => navigate(`/subscriptions/${sub.subscriptionId}`)}
+                      style={{
+                        opacity: isPaused ? 0.6 : 1,
+                        transition: "opacity 0.2s",
+                        cursor: "pointer",
+                      }}
                       onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLTableRowElement).style.backgroundColor =
-                          "rgba(83,58,253,0.04)";
+                        (
+                          e.currentTarget as HTMLTableRowElement
+                        ).style.backgroundColor = "rgba(83,58,253,0.04)";
                       }}
                       onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLTableRowElement).style.backgroundColor =
-                          "transparent";
+                        (
+                          e.currentTarget as HTMLTableRowElement
+                        ).style.backgroundColor = "transparent";
                       }}
                     >
                       {/* Service */}
-                      <td style={{ padding: "12px 20px", borderBottom: "1px solid #f0f4f8" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <td
+                        style={{
+                          padding: "12px 20px",
+                          borderBottom: "1px solid #f0f4f8",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
                           <div
                             style={{
                               width: "34px",
                               height: "34px",
                               borderRadius: "8px",
-                              background: "linear-gradient(135deg, #533afd22, #7c5cff33)",
+                              background:
+                                "linear-gradient(135deg, #533afd22, #7c5cff33)",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
@@ -302,14 +358,23 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
                           >
                             {initials}
                           </div>
-                          <Typography variant="body2" weight="medium" color="semantic.label.normal">
+                          <Typography
+                            variant="body2"
+                            weight="medium"
+                            color="semantic.label.normal"
+                          >
                             {sub.serviceName}
                           </Typography>
                         </div>
                       </td>
 
                       {/* Category */}
-                      <td style={{ padding: "12px 20px", borderBottom: "1px solid #f0f4f8" }}>
+                      <td
+                        style={{
+                          padding: "12px 20px",
+                          borderBottom: "1px solid #f0f4f8",
+                        }}
+                      >
                         <span
                           style={{
                             display: "inline-flex",
@@ -328,15 +393,37 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
                       </td>
 
                       {/* Billing cycle */}
-                      <td style={{ padding: "12px 20px", borderBottom: "1px solid #f0f4f8" }}>
-                        <Typography variant="body2" color="semantic.label.alternative">
-                          {BILLING_CYCLE_META[sub.billingCycle].label === "월간 결제" ? "매월" : "매년"}
+                      <td
+                        style={{
+                          padding: "12px 20px",
+                          borderBottom: "1px solid #f0f4f8",
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          color="semantic.label.alternative"
+                        >
+                          {BILLING_CYCLE_META[sub.billingCycle].label ===
+                          "월간 결제"
+                            ? "매월"
+                            : "매년"}
                         </Typography>
                       </td>
 
                       {/* Next billing date */}
-                      <td style={{ padding: "12px 20px", borderBottom: "1px solid #f0f4f8" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <td
+                        style={{
+                          padding: "12px 20px",
+                          borderBottom: "1px solid #f0f4f8",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
                           {isUpcoming && (
                             <span
                               style={{
@@ -351,14 +438,22 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
                               {getDDayLabel(sub.nextBillingDate)}
                             </span>
                           )}
-                          <Typography variant="body2" color="semantic.label.alternative">
+                          <Typography
+                            variant="body2"
+                            color="semantic.label.alternative"
+                          >
                             {sub.nextBillingDate}
                           </Typography>
                         </div>
                       </td>
 
                       {/* Amount */}
-                      <td style={{ padding: "12px 20px", borderBottom: "1px solid #f0f4f8" }}>
+                      <td
+                        style={{
+                          padding: "12px 20px",
+                          borderBottom: "1px solid #f0f4f8",
+                        }}
+                      >
                         <p
                           style={{
                             margin: 0,
@@ -374,7 +469,12 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
                       </td>
 
                       {/* Status toggle */}
-                      <td style={{ padding: "12px 20px", borderBottom: "1px solid #f0f4f8" }}>
+                      <td
+                        style={{
+                          padding: "12px 20px",
+                          borderBottom: "1px solid #f0f4f8",
+                        }}
+                      >
                         <StatusToggle
                           active={sub.status === "ACTIVE"}
                           onChange={() => toggleStatus(sub.subscriptionId)}
@@ -400,6 +500,7 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
                 return (
                   <li
                     key={sub.subscriptionId}
+                    onClick={() => navigate(`/subscriptions/${sub.subscriptionId}`)}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -407,15 +508,19 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
                       padding: "14px 20px",
                       opacity: isPaused ? 0.6 : 1,
                       borderBottom: "1px solid #f0f4f8",
-                      transition: "opacity 0.2s",
+                      transition: "opacity 0.2s, background-color 0.1s",
+                      cursor: "pointer",
                     }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLLIElement).style.backgroundColor = "rgba(83,58,253,0.04)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLLIElement).style.backgroundColor = "transparent"; }}
                   >
                     <div
                       style={{
                         width: "38px",
                         height: "38px",
                         borderRadius: "10px",
-                        background: "linear-gradient(135deg, #533afd22, #7c5cff33)",
+                        background:
+                          "linear-gradient(135deg, #533afd22, #7c5cff33)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -437,19 +542,50 @@ export default function SubscriptionList({ subscriptions }: SubscriptionListProp
                       >
                         {sub.serviceName}
                       </Typography>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <Typography variant="caption1" color="semantic.label.alternative">
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <Typography
+                          variant="caption1"
+                          color="semantic.label.alternative"
+                        >
                           {meta.emoji} {meta.label}
                         </Typography>
-                        <span style={{ color: "#e3e8ee", fontSize: "10px" }}>|</span>
-                        <Typography variant="caption1" color="semantic.label.alternative">
-                          {BILLING_CYCLE_META[sub.billingCycle].label === "월간 결제" ? "매월" : "매년"}
+                        <span style={{ color: "#e3e8ee", fontSize: "10px" }}>
+                          |
+                        </span>
+                        <Typography
+                          variant="caption1"
+                          color="semantic.label.alternative"
+                        >
+                          {BILLING_CYCLE_META[sub.billingCycle].label ===
+                          "월간 결제"
+                            ? "매월"
+                            : "매년"}
                         </Typography>
                       </div>
                     </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px", flexShrink: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        gap: "6px",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
                         {isUpcoming && (
                           <span
                             style={{

@@ -3,8 +3,8 @@ import AuthProvider from "./components/AuthProvider";
 import LoginPage from "./routes/login/LoginPage";
 import RegisterPage from "./routes/register/RegisterPage";
 import DashboardPage from "./routes/dashboard/DashboardPage";
-
 import MyPage from "./routes/mypage/MyPage";
+import SubscriptionDetailPage from "./routes/subscriptions/SubscriptionDetailPage";
 
 function App() {
   return (
@@ -15,6 +15,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/dashboard/*" element={<DashboardPage />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/subscriptions/:subscriptionId" element={<SubscriptionDetailPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AuthProvider>
