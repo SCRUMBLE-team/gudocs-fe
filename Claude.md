@@ -15,15 +15,15 @@
 
 ## 기술 스택
 
-| 영역       | 기술                            |
-| ---------- | ------------------------------- |
-| Frontend   | TypeScript, React               |
-| 상태 관리  | Zustand (전역 상태)             |
+| 영역       | 기술                                                     |
+| ---------- | -------------------------------------------------------- |
+| Frontend   | TypeScript, React                                        |
+| 상태 관리  | Zustand (전역 상태)                                      |
 | 스타일     | Tailwind CSS v4, Wanted Design System (`@wanteddev/wds`) |
-| api 호출출 | axios                           |
-| 차트       | (별도 정의 시 여기에 추가)      |
-| Backend/DB | (별도 정의 시 여기에 추가)      |
-| 배포 환경  | `https://localhost` (개발 기준) |
+| api 호출출 | axios                                                    |
+| 차트       | (별도 정의 시 여기에 추가)                               |
+| Backend/DB | (별도 정의 시 여기에 추가)                               |
+| 배포 환경  | `https://localhost` (개발 기준)                          |
 
 ---
 
@@ -200,97 +200,27 @@ src/
 ```typescript
 // 구독 카테고리
 type SubscriptionCategory =
-  | "OTT"
-  | "음악 스트리밍"
-  | "클라우드"
-  | "게임"
-  | "교육"
-  | "뉴스/미디어"
-  | "소프트웨어"
-  | "기타";
+  | 'OTT'
+  | '음악 스트리밍'
+  | '클라우드'
+  | '게임'
+  | '교육'
+  | '뉴스/미디어'
+  | '소프트웨어'
+  | '기타';
 
 // 구독 상태
-type SubscriptionStatus = "active" | "paused" | "cancelled";
+type SubscriptionStatus = 'active' | 'paused' | 'cancelled';
 
 // 결제 수단
-type PaymentMethod = "신용카드" | "체크카드" | "계좌이체" | "간편결제";
+type PaymentMethod = '신용카드' | '체크카드' | '계좌이체' | '간편결제';
 ```
-
----
-
-## 주요 기능 & 구현 가이드
-
-### 1. 인증 (홈)
-
-- 페이지 경로: `/login`, `/register`, `/forgot-password`
-- 인증 상태는 **Zustand** `useAuthStore`로 전역 관리
-- 로그인 후 `/dashboard`로 리다이렉트
-- 비로그인 상태에서 `/dashboard` 접근 시 `/login`으로 리다이렉트
-
-```typescript
-// store/authStore.ts 예시
-interface AuthStore {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (user: User) => void;
-  logout: () => void;
-}
-```
-
----
-
-### 2. 구독 관리
-
-- 페이지 경로: `/dashboard/subscriptions`, `/dashboard/subscriptions/[id]`
-
-- 목록 페이지: 카테고리 필터, 상태 필터 지원
-- 등록/수정: 폼 입력값 검증 후 API 호출
-  - 필수 입력: `name`, `category`, `price`, `billingDay`, `paymentMethod`
-  - `billingDay` 범위: 1 ~ 31
-  - `price` 단위: 원(KRW), 0 이상
-- 삭제: 확인 모달 → API 호출 → 목록 refetch
-- 일시 정지: `status`를 `'active'` ↔ `'paused'` 토글
-
----
-
-### 3. 지출 분석
-
-- 페이지 경로: `/dashboard/analytics`
-- 이번 달 총 구독 지출 = `price` 합산 (status: `'active'`인 항목만)
-- **도넛 차트** (카테고리별 비율) — Recharts `PieChart` 사용
-- **막대 그래프** (최근 6개월 추이) — Recharts `BarChart` 사용
-- 월 이동: 이전/다음 달 버튼으로 조회 월 변경
-
-```typescript
-// 월별 총액 계산 예시
-const calcMonthlyTotal = (subscriptions: Subscription[]): number =>
-  subscriptions
-    .filter((s) => s.status === "active")
-    .reduce((sum, s) => sum + s.price, 0);
-```
-
----
-
-### 4. 알림
-
-- 페이지 경로: `/dashboard/notifications`
-- 헤더의 벨 아이콘 → 드롭다운으로 최근 알림 목록 표시
-- 읽지 않은 알림 수: 헤더 벨 아이콘에 뱃지로 표시
-- 알림 설정: `NotificationSetting` 저장 → 서버에 PATCH 요청
-- 전체 읽음: 모든 알림 `read: true` → PATCH `/notifications/read-all`
-
----
-
-### 5. 마이페이지
-
-- 페이지 경로: `/dashboard/mypage`
-- 회원 정보 수정 (이름)
-- 비밀번호 변경: 변경 후 강제 로그아웃 → `/login` 이동
-- 회원 탈퇴: 비밀번호 재확인 → 탈퇴 처리 → 서비스 메인 이동
 
 ---
 
 ## 스타일링 가이드
+
+UI 작업 시 DESIGN.md를 먼저 읽고 토큰 내에서만 작업할 것
 
 ### Wanted Design System (WDS)
 
@@ -306,7 +236,7 @@ WDS에 없는 경우에만 Tailwind CSS로 직접 구현한다.
 `main.tsx`에서 앱 전체를 `ThemeProvider`로 감싼다.
 
 ```tsx
-import { ThemeProvider } from '@wanteddev/wds'
+import { ThemeProvider } from '@wanteddev/wds';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -314,7 +244,7 @@ createRoot(document.getElementById('root')!).render(
       <App />
     </ThemeProvider>
   </StrictMode>,
-)
+);
 ```
 
 #### 컴포넌트 사용 예시
@@ -341,36 +271,17 @@ import { IcSearch, IcBell } from '@wanteddev/wds-icon'
 <IcSearch size={20} color="gray600" />
 ```
 
-#### 색상 및 토큰 활용
-
-WDS 디자인 토큰을 CSS 변수로 활용한다. Tailwind 임의값보다 토큰을 우선 사용한다.
-
-```tsx
-// ✅ WDS 토큰 사용
-<div style={{ color: 'var(--color-gray-700)' }}>텍스트</div>
-
-// ✅ WDS 컴포넌트의 variant/color prop 사용
-<Button variant="primary">확인</Button>
-
-// ❌ 하드코딩된 색상 직접 사용 지양
-<div style={{ color: '#333' }}>텍스트</div>
-```
-
----
-
-## 공통 UI 규칙
-
 ### Toast 메시지
 
 성공/실패 상황에서 항상 토스트 메시지를 사용한다.
 
 ```typescript
 // 성공 예시
-toast.success("구독 서비스가 등록되었습니다.");
+toast.success('구독 서비스가 등록되었습니다.');
 // 삭제 예시
-toast.success("삭제되었습니다.");
+toast.success('삭제되었습니다.');
 // 에러 예시
-toast.error("처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+toast.error('처리 중 오류가 발생했습니다. 다시 시도해주세요.');
 ```
 
 ### 확인 모달
