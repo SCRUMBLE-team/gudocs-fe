@@ -1,20 +1,170 @@
-import { Typography } from "@wanteddev/wds";
-import Header from "../../layouts/Header";
+import { useState, useEffect } from "react";
+import { Button, Typography, Skeleton, FallbackView, FallbackViewContent, FallbackViewText, FallbackViewButton } from "@wanteddev/wds";
+import type { Dashboard } from "../../type/dashboard";
+import type { SubscriptionDetail } from "../../type/subscribe";
+import { getDashboard } from "../../api/dashboard";
+import { getSubscriptions } from "../../api/subscribe";
+import AppLayout from "../../layouts/AppLayout";
+import PaymentAlert from "../../components/dashboard/PaymentAlert";
+
+import SummaryCards from "../../components/dashboard/SummaryCards";
+import RecentSubscriptions from "../../components/dashboard/RecentSubscriptions";
+import CategorySummary from "../../components/dashboard/CategorySummary";
+import SubscriptionList from "../../components/dashboard/SubscriptionList";
+import SubscriptionFormModal from "../../components/dashboard/SubscriptionFormModal";
 
 export default function DashboardPage() {
+  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionDetail[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const [dashboardRes, subsRes] = await Promise.all([
+          getDashboard(),
+          getSubscriptions({}),
+        ]);
+        if (cancelled) return;
+        setDashboard(dashboardRes.data);
+        setSubscriptions(subsRes.data);
+      } catch (err) {
+        if (cancelled) return;
+        console.error(err);
+        setError("데이터를 불러오는 데 실패했습니다.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchData();
+    return () => {
+      cancelled = true;
+    };
+  }, [retryCount]);
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "var(--semantic-background-normal-alternative)",
-      }}
-    >
-      <Header />
-      <div style={{ padding: "32px 24px" }}>
-        <Typography variant="title2" weight="bold">
-          대시보드
-        </Typography>
+    <AppLayout notifications={dashboard?.upcomingNotifications ?? []}>
+      <main
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "24px 24px 48px",
+        }}
+      >
+        {/* Page header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            marginBottom: "20px",
+          }}
+        >
+          <div>
+            <Typography
+              variant="title2"
+              weight="bold"
+              color="semantic.label.normal"
+              style={{ display: "block" }}
+            >
+              대시보드
+            </Typography>
+            <Typography
+              variant="body2"
+              color="semantic.label.alternative"
+              style={{ display: "block", marginTop: "2px" }}
+            >
+              {new Date().toLocaleDateString("ko-KR", {
+                year: "numeric",
+                month: "long",
+              })}{" "}
+              기준
+            </Typography>
+          </div>
+          <Button
+            variant="solid"
+            color="primary"
+            size="medium"
+            onClick={() => setShowAddModal(true)}
+          >
+            + 구독 추가
+          </Button>
+        </div>
+
+        {loading && <DashboardSkeleton />}
+
+        {!loading && error && (
+          <FallbackView>
+            <FallbackViewContent>
+              <FallbackViewText description={error ?? ""} />
+              <FallbackViewButton onClick={() => setRetryCount((c) => c + 1)}>
+                다시 시도
+              </FallbackViewButton>
+            </FallbackViewContent>
+          </FallbackView>
+        )}
+
+        {!loading && !error && dashboard && (
+          <>
+            <PaymentAlert notifications={dashboard.upcomingNotifications} />
+            <SummaryCards
+              monthlyTotalExpense={dashboard.monthlyTotalExpense}
+              activeSubscriptionCount={dashboard.activeSubscriptionCount}
+              totalCount={subscriptions.length}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-5 mb-6">
+              <div className="md:col-span-3">
+                <CategorySummary categorySummaries={dashboard.categorySummaries} />
+              </div>
+              <div className="md:col-span-2">
+                <RecentSubscriptions subscriptions={subscriptions} />
+              </div>
+            </div>
+
+            <SubscriptionList subscriptions={subscriptions} />
+          </>
+        )}
+      </main>
+
+      <SubscriptionFormModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={() => setRetryCount((c) => c + 1)}
+      />
+    </AppLayout>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <>
+      {/* SummaryCards skeleton */}
+      <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
+        <Skeleton variant="rectangle" width="100%" height={120} radius="12px" />
+        <Skeleton variant="rectangle" width="100%" height={120} radius="12px" />
       </div>
-    </div>
+
+      {/* 2-column skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-5 mb-6">
+        <div className="md:col-span-3">
+          <Skeleton variant="rectangle" width="100%" height={320} radius="12px" />
+        </div>
+        <div className="md:col-span-2">
+          <Skeleton variant="rectangle" width="100%" height={320} radius="12px" />
+        </div>
+      </div>
+
+      {/* List skeleton */}
+      <Skeleton variant="rectangle" width="100%" height={400} radius="12px" />
+    </>
   );
 }
