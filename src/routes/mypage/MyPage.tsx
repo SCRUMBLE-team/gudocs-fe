@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -8,7 +8,7 @@ import {
   FormErrorMessage,
   useToast,
 } from "@wanteddev/wds";
-import Header from "../../layouts/Header";
+import AppLayout from "../../layouts/AppLayout";
 import { useAuthStore } from "../../stores/useAuthStore";
 
 interface PasswordErrors {
@@ -43,7 +43,7 @@ export default function MyPage() {
 
   const handleNameSave = () => {
     if (!name.trim()) return;
-    toast({ content: "API 연동 후 사용 가능합니다.", variant: "informative", duration: "short" });
+    toast({ content: "API 연동 후 사용 가능합니다.", variant: "normal", duration: "short" });
     setIsEditingName(false);
     setName(user?.name ?? "");
   };
@@ -61,7 +61,7 @@ export default function MyPage() {
       return;
     }
 
-    toast({ content: "API 연동 후 사용 가능합니다.", variant: "informative", duration: "short" });
+    toast({ content: "API 연동 후 사용 가능합니다.", variant: "normal", duration: "short" });
   };
 
   const handleDeleteAccount = () => {
@@ -69,18 +69,13 @@ export default function MyPage() {
       toast({ content: "비밀번호를 입력하세요.", variant: "negative", duration: "short" });
       return;
     }
-    toast({ content: "API 연동 후 사용 가능합니다.", variant: "informative", duration: "short" });
+    toast({ content: "API 연동 후 사용 가능합니다.", variant: "normal", duration: "short" });
     setShowDeleteConfirm(false);
     setDeletePassword("");
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      backgroundColor: "var(--semantic-background-normal-alternative)",
-    }}>
-      <Header />
-
+    <AppLayout>
       <div style={{
         maxWidth: "660px",
         margin: "0 auto",
@@ -107,15 +102,15 @@ export default function MyPage() {
           display: "flex",
           alignItems: "center",
           gap: "20px",
-          background: "linear-gradient(135deg, rgba(99,102,241,0.04) 0%, rgba(139,92,246,0.04) 100%), var(--semantic-background-normal-normal)",
+          background: "linear-gradient(135deg, rgba(0,102,255,0.04) 0%, rgba(77,148,255,0.04) 100%), var(--semantic-background-normal-normal)",
         }}>
           <div style={{
             width: "72px", height: "72px", borderRadius: "50%",
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            background: "linear-gradient(135deg, #0066FF, #4D94FF)",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: "28px", fontWeight: "800",
             color: "white", flexShrink: 0,
-            boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
+            boxShadow: "0 4px 16px rgba(0,102,255,0.3)",
           }}>
             {initials}
           </div>
@@ -129,11 +124,11 @@ export default function MyPage() {
             <div style={{
               marginTop: "10px",
               display: "inline-flex", alignItems: "center", gap: "4px",
-              backgroundColor: "rgba(99,102,241,0.08)",
+              backgroundColor: "rgba(0,102,255,0.08)",
               borderRadius: "999px", padding: "3px 10px",
             }}>
               <span style={{ fontSize: "11px" }}>✅</span>
-              <Typography variant="caption1" style={{ color: "#6366f1", fontWeight: "600" }}>
+              <Typography variant="caption1" style={{ color: "#0066FF", fontWeight: "600" }}>
                 인증된 계정
               </Typography>
             </div>
@@ -358,7 +353,7 @@ export default function MyPage() {
           )}
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }
 

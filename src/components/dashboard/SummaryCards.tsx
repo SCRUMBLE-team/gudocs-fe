@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Typography } from "@wanteddev/wds";
-import type { SubscriptionDetail } from "../../type/subscribe";
 import { formatKRW } from "../../utils/format";
 
 interface SummaryCardsProps {
-  subscriptions: SubscriptionDetail[];
+  monthlyTotalExpense: number;
+  activeSubscriptionCount: number;
+  totalCount: number;
 }
 
 const CARD_STYLE: React.CSSProperties = {
@@ -19,22 +20,12 @@ const CARD_STYLE: React.CSSProperties = {
   transition: "box-shadow 0.15s, transform 0.15s",
 };
 
-export default function SummaryCards({ subscriptions }: SummaryCardsProps) {
+export default function SummaryCards({
+  monthlyTotalExpense,
+  activeSubscriptionCount,
+  totalCount,
+}: SummaryCardsProps) {
   const navigate = useNavigate();
-
-  const today = new Date();
-  const currentMonth = today.getMonth() + 1;
-
-  const activeSubscriptions = subscriptions.filter((s) => s.status === "ACTIVE");
-
-  const monthlyTotal = activeSubscriptions
-    .filter((s) => {
-      if (s.billingCycle === "MONTHLY") return true;
-      return s.billingMonth === currentMonth;
-    })
-    .reduce((sum, s) => sum + s.price, 0);
-
-  const activeCount = activeSubscriptions.length;
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     e.currentTarget.style.boxShadow = "rgba(0,55,112,0.14) 0 4px 12px";
@@ -46,9 +37,7 @@ export default function SummaryCards({ subscriptions }: SummaryCardsProps) {
   };
 
   return (
-    <div
-      style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}
-    >
+    <div style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
       {/* 이번 달 총 지출 */}
       <div
         style={CARD_STYLE}
@@ -70,13 +59,9 @@ export default function SummaryCards({ subscriptions }: SummaryCardsProps) {
             lineHeight: 1.2,
           }}
         >
-          {formatKRW(monthlyTotal)}
+          {formatKRW(monthlyTotalExpense)}
         </p>
-        <Typography
-          variant="caption1"
-          color="semantic.label.alternative"
-          style={{ display: "block", marginTop: "6px" }}
-        >
+        <Typography variant="caption1" color="semantic.label.alternative" style={{ display: "block", marginTop: "6px" }}>
           활성 구독 기준
         </Typography>
       </div>
@@ -102,15 +87,11 @@ export default function SummaryCards({ subscriptions }: SummaryCardsProps) {
             lineHeight: 1.2,
           }}
         >
-          {activeCount}
+          {activeSubscriptionCount}
           <span style={{ fontSize: "16px", fontWeight: "400", marginLeft: "4px", color: "#64748d" }}>개</span>
         </p>
-        <Typography
-          variant="caption1"
-          color="semantic.label.alternative"
-          style={{ display: "block", marginTop: "6px" }}
-        >
-          전체 {subscriptions.length}개 중
+        <Typography variant="caption1" color="semantic.label.alternative" style={{ display: "block", marginTop: "6px" }}>
+          전체 {totalCount}개 중
         </Typography>
       </div>
     </div>

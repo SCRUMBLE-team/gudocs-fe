@@ -1,4 +1,4 @@
-import { Typography } from "@wanteddev/wds";
+﻿import { Typography } from "@wanteddev/wds";
 import type { SubscriptionDetail } from "../../type/subscribe";
 import { CATEGORY_META } from "../../type/subscribe";
 import {
@@ -65,7 +65,7 @@ export default function RecentSubscriptions({
 
           return (
             <li
-              key={sub.subscriptionId}
+              key={sub.id}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -81,13 +81,13 @@ export default function RecentSubscriptions({
                   width: "38px",
                   height: "38px",
                   borderRadius: "10px",
-                  background: "linear-gradient(135deg, #533afd22, #7c5cff33)",
+                  background: "linear-gradient(135deg, #0066ff22, #0066ff33)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: "15px",
                   fontWeight: "700",
-                  color: "#533afd",
+                  color: "#0066FF",
                   flexShrink: 0,
                 }}
               >
@@ -156,8 +156,8 @@ export default function RecentSubscriptions({
                       style={{
                         fontSize: "10px",
                         fontWeight: "700",
-                        color: "#533afd",
-                        backgroundColor: "rgba(83,58,253,0.08)",
+                        color: "#0066FF",
+                        backgroundColor: "rgba(0,102,255,0.08)",
                         padding: "1px 5px",
                         borderRadius: "9999px",
                       }}

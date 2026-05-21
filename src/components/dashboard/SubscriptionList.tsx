@@ -1,5 +1,13 @@
-import { useState } from "react";
-import { Typography } from "@wanteddev/wds";
+﻿import { useState } from "react";
+import {
+  Typography,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableHeadCell,
+  TableCell,
+} from "@wanteddev/wds";
 import type {
   SubscribeCategory,
   SubscribeStatus,
@@ -13,6 +21,7 @@ import {
   getNextBillingDate,
 } from "../../utils/format";
 import { useNavigate } from "react-router-dom";
+import { changeSubscribeStatus } from "../../api/subscribe";
 
 interface SubscriptionListProps {
   subscriptions: SubscriptionDetail[];
@@ -43,23 +52,31 @@ const ALL_CATEGORIES: (SubscribeCategory | "ALL")[] = [
 
 function StatusToggle({
   active,
+  disabled,
   onChange,
 }: {
   active: boolean;
-  onChange: (next: boolean) => void;
+  disabled?: boolean;
+  onChange: () => void;
 }) {
   return (
     <button
-      onClick={(e) => { e.stopPropagation(); onChange(!active); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (!disabled) onChange();
+      }}
       title={active ? "클릭하여 일시정지" : "클릭하여 활성화"}
+      disabled={disabled}
       style={{
         display: "inline-flex",
         alignItems: "center",
         gap: "8px",
         background: "none",
         border: "none",
-        cursor: "pointer",
+        cursor: disabled ? "wait" : "pointer",
         padding: "2px 0",
+        opacity: disabled ? 0.6 : 1,
+        transition: "opacity 0.15s",
       }}
     >
       {/* Track */}
@@ -70,7 +87,7 @@ function StatusToggle({
           width: "36px",
           height: "20px",
           borderRadius: "9999px",
-          backgroundColor: active ? "#533afd" : "#cbd5e1",
+          backgroundColor: active ? "#0066FF" : "#cbd5e1",
           transition: "background-color 0.2s ease",
           flexShrink: 0,
         }}
@@ -94,7 +111,7 @@ function StatusToggle({
         style={{
           fontSize: "12px",
           fontWeight: "600",
-          color: active ? "#533afd" : "#94a3b8",
+          color: active ? "#0066FF" : "#94a3b8",
           fontFamily: "Pretendard, sans-serif",
           minWidth: "40px",
         }}
@@ -117,23 +134,42 @@ export default function SubscriptionList({
   >("ALL");
   const [sortKey, setSortKey] = useState<SortKey>("billingDate");
 
-  // local status overrides: subscriptionId → SubscribeStatus
+  // local status overrides: id → SubscribeStatus
   const [localStatuses, setLocalStatuses] = useState<
     Record<number, SubscribeStatus>
-  >(() =>
-    Object.fromEntries(subscriptions.map((s) => [s.subscriptionId, s.status])),
-  );
+  >(() => Object.fromEntries(subscriptions.map((s) => [s.id, s.status])));
 
-  const toggleStatus = (id: number) => {
-    setLocalStatuses((prev) => ({
-      ...prev,
-      [id]: prev[id] === "ACTIVE" ? "PAUSED" : "ACTIVE",
-    }));
+  // 요청 중인 id 집합 (중복 클릭 방지)
+  const [pendingIds, setPendingIds] = useState<Set<number>>(new Set());
+
+  const toggleStatus = async (id: number) => {
+    if (pendingIds.has(id)) return;
+
+    const prevStatus = localStatuses[id];
+    const nextStatus: SubscribeStatus = prevStatus === "ACTIVE" ? "PAUSED" : "ACTIVE";
+
+    // 낙관적 업데이트
+    setLocalStatuses((prev) => ({ ...prev, [id]: nextStatus }));
+    setPendingIds((prev) => new Set(prev).add(id));
+
+    try {
+      await changeSubscribeStatus({ subscriptionId: String(id), status: nextStatus });
+    } catch (err) {
+      console.error(err);
+      // 실패 시 원래 상태로 복구
+      setLocalStatuses((prev) => ({ ...prev, [id]: prevStatus }));
+    } finally {
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
   };
 
   const withBillingDate = subscriptions.map((s) => ({
     ...s,
-    status: localStatuses[s.subscriptionId] ?? s.status,
+    status: localStatuses[s.id] ?? s.status,
     nextBillingDate: getNextBillingDate(
       s.billingDay,
       s.billingCycle,
@@ -158,9 +194,9 @@ export default function SubscriptionList({
     borderRadius: "9999px",
     fontSize: "13px",
     fontWeight: active ? "600" : "400",
-    color: active ? "#533afd" : "#64748d",
-    backgroundColor: active ? "rgba(83,58,253,0.08)" : "transparent",
-    border: `1px solid ${active ? "#533afd" : "#e3e8ee"}`,
+    color: active ? "#0066FF" : "#64748d",
+    backgroundColor: active ? "rgba(0,102,255,0.08)" : "transparent",
+    border: `1px solid ${active ? "#0066FF" : "#e3e8ee"}`,
     cursor: "pointer",
     transition: "all 0.15s",
     fontFamily: "Pretendard, sans-serif",
@@ -177,7 +213,6 @@ export default function SubscriptionList({
         overflow: "hidden",
       }}
     >
-      {/* Header */}
       <div
         style={{
           padding: "16px 20px",
@@ -197,7 +232,6 @@ export default function SubscriptionList({
           전체 구독 ({filtered.length}개)
         </Typography>
 
-        {/* Sort */}
         <select
           value={sortKey}
           onChange={(e) => setSortKey(e.target.value as SortKey)}
@@ -220,7 +254,6 @@ export default function SubscriptionList({
         </select>
       </div>
 
-      {/* Filters */}
       <div
         style={{
           padding: "12px 20px",
@@ -230,7 +263,6 @@ export default function SubscriptionList({
           gap: "8px",
         }}
       >
-        {/* Status filter */}
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
           {(["ALL", "ACTIVE", "PAUSED"] as const).map((s) => (
             <button
@@ -243,7 +275,6 @@ export default function SubscriptionList({
           ))}
         </div>
 
-        {/* Category filter */}
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
           {ALL_CATEGORIES.map((c) => (
             <button
@@ -259,7 +290,6 @@ export default function SubscriptionList({
         </div>
       </div>
 
-      {/* Content */}
       {filtered.length === 0 ? (
         <div style={{ padding: "40px", textAlign: "center" }}>
           <Typography variant="body2" color="semantic.label.alternative">
@@ -268,37 +298,16 @@ export default function SubscriptionList({
         </div>
       ) : (
         <>
-          {/* Desktop table */}
           <div className="hidden md:block">
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ backgroundColor: "#f6f9fc" }}>
-                  {[
-                    "서비스",
-                    "카테고리",
-                    "결제 주기",
-                    "다음 결제일",
-                    "금액",
-                    "상태",
-                  ].map((h) => (
-                    <th
-                      key={h}
-                      style={{
-                        padding: "10px 20px",
-                        textAlign: "left",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        color: "#64748d",
-                        letterSpacing: "0.02em",
-                        borderBottom: "1px solid #e3e8ee",
-                      }}
-                    >
-                      {h}
-                    </th>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  {["서비스", "카테고리", "결제 주기", "다음 결제일", "금액", "상태"].map((h) => (
+                    <TableHeadCell key={h}>{h}</TableHeadCell>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {filtered.map((sub) => {
                   const isPaused = sub.status === "PAUSED";
                   const days = getDaysUntil(sub.nextBillingDate);
@@ -307,74 +316,42 @@ export default function SubscriptionList({
                   const initials = sub.serviceName.charAt(0).toUpperCase();
 
                   return (
-                    <tr
-                      key={sub.subscriptionId}
-                      onClick={() => navigate(`/subscriptions/${sub.subscriptionId}`)}
+                    <TableRow
+                      key={sub.id}
+                      interaction
+                      onClick={() => navigate(`/subscriptions/${sub.id}`)}
                       style={{
                         opacity: isPaused ? 0.6 : 1,
                         transition: "opacity 0.2s",
                         cursor: "pointer",
                       }}
-                      onMouseEnter={(e) => {
-                        (
-                          e.currentTarget as HTMLTableRowElement
-                        ).style.backgroundColor = "rgba(83,58,253,0.04)";
-                      }}
-                      onMouseLeave={(e) => {
-                        (
-                          e.currentTarget as HTMLTableRowElement
-                        ).style.backgroundColor = "transparent";
-                      }}
                     >
-                      {/* Service */}
-                      <td
-                        style={{
-                          padding: "12px 20px",
-                          borderBottom: "1px solid #f0f4f8",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                          }}
-                        >
+                      <TableCell>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                           <div
                             style={{
                               width: "34px",
                               height: "34px",
                               borderRadius: "8px",
-                              background:
-                                "linear-gradient(135deg, #533afd22, #7c5cff33)",
+                              background: "linear-gradient(135deg, #0066ff22, #0066ff33)",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
                               fontSize: "13px",
                               fontWeight: "700",
-                              color: "#533afd",
+                              color: "#0066FF",
                               flexShrink: 0,
                             }}
                           >
                             {initials}
                           </div>
-                          <Typography
-                            variant="body2"
-                            weight="medium"
-                            color="semantic.label.normal"
-                          >
+                          <Typography variant="body2" weight="medium" color="semantic.label.normal">
                             {sub.serviceName}
                           </Typography>
                         </div>
-                      </td>
+                      </TableCell>
 
-                      {/* Category */}
-                      <td
-                        style={{
-                          padding: "12px 20px",
-                          borderBottom: "1px solid #f0f4f8",
-                        }}
-                      >
+                      <TableCell>
                         <span
                           style={{
                             display: "inline-flex",
@@ -390,47 +367,23 @@ export default function SubscriptionList({
                         >
                           {meta.emoji} {meta.label}
                         </span>
-                      </td>
+                      </TableCell>
 
-                      {/* Billing cycle */}
-                      <td
-                        style={{
-                          padding: "12px 20px",
-                          borderBottom: "1px solid #f0f4f8",
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          color="semantic.label.alternative"
-                        >
-                          {BILLING_CYCLE_META[sub.billingCycle].label ===
-                          "월간 결제"
-                            ? "매월"
-                            : "매년"}
+                      <TableCell>
+                        <Typography variant="body2" color="semantic.label.alternative">
+                          {BILLING_CYCLE_META[sub.billingCycle].label === "월간 결제" ? "매월" : "매년"}
                         </Typography>
-                      </td>
+                      </TableCell>
 
-                      {/* Next billing date */}
-                      <td
-                        style={{
-                          padding: "12px 20px",
-                          borderBottom: "1px solid #f0f4f8",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                          }}
-                        >
+                      <TableCell>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           {isUpcoming && (
                             <span
                               style={{
                                 fontSize: "10px",
                                 fontWeight: "700",
-                                color: "#533afd",
-                                backgroundColor: "rgba(83,58,253,0.08)",
+                                color: "#0066FF",
+                                backgroundColor: "rgba(0,102,255,0.08)",
                                 padding: "1px 5px",
                                 borderRadius: "9999px",
                               }}
@@ -438,22 +391,13 @@ export default function SubscriptionList({
                               {getDDayLabel(sub.nextBillingDate)}
                             </span>
                           )}
-                          <Typography
-                            variant="body2"
-                            color="semantic.label.alternative"
-                          >
+                          <Typography variant="body2" color="semantic.label.alternative">
                             {sub.nextBillingDate}
                           </Typography>
                         </div>
-                      </td>
+                      </TableCell>
 
-                      {/* Amount */}
-                      <td
-                        style={{
-                          padding: "12px 20px",
-                          borderBottom: "1px solid #f0f4f8",
-                        }}
-                      >
+                      <TableCell>
                         <p
                           style={{
                             margin: 0,
@@ -466,28 +410,21 @@ export default function SubscriptionList({
                         >
                           {formatKRW(sub.price)}
                         </p>
-                      </td>
+                      </TableCell>
 
-                      {/* Status toggle */}
-                      <td
-                        style={{
-                          padding: "12px 20px",
-                          borderBottom: "1px solid #f0f4f8",
-                        }}
-                      >
+                      <TableCell>
                         <StatusToggle
                           active={sub.status === "ACTIVE"}
-                          onChange={() => toggleStatus(sub.subscriptionId)}
+                          disabled={pendingIds.has(sub.id)}
+                          onChange={() => toggleStatus(sub.id)}
                         />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
-
-          {/* Mobile card list */}
           <div className="block md:hidden">
             <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
               {filtered.map((sub) => {
@@ -499,8 +436,8 @@ export default function SubscriptionList({
 
                 return (
                   <li
-                    key={sub.subscriptionId}
-                    onClick={() => navigate(`/subscriptions/${sub.subscriptionId}`)}
+                    key={sub.id}
+                    onClick={() => navigate(`/subscriptions/${sub.id}`)}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -511,8 +448,14 @@ export default function SubscriptionList({
                       transition: "opacity 0.2s, background-color 0.1s",
                       cursor: "pointer",
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLLIElement).style.backgroundColor = "rgba(83,58,253,0.04)"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLLIElement).style.backgroundColor = "transparent"; }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLLIElement).style.backgroundColor =
+                        "rgba(0,102,255,0.04)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLLIElement).style.backgroundColor =
+                        "transparent";
+                    }}
                   >
                     <div
                       style={{
@@ -520,13 +463,13 @@ export default function SubscriptionList({
                         height: "38px",
                         borderRadius: "10px",
                         background:
-                          "linear-gradient(135deg, #533afd22, #7c5cff33)",
+                          "linear-gradient(135deg, #0066ff22, #0066ff33)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         fontSize: "15px",
                         fontWeight: "700",
-                        color: "#533afd",
+                        color: "#0066FF",
                         flexShrink: 0,
                       }}
                     >
@@ -591,8 +534,8 @@ export default function SubscriptionList({
                             style={{
                               fontSize: "10px",
                               fontWeight: "700",
-                              color: "#533afd",
-                              backgroundColor: "rgba(83,58,253,0.08)",
+                              color: "#0066FF",
+                              backgroundColor: "rgba(0,102,255,0.08)",
                               padding: "1px 4px",
                               borderRadius: "9999px",
                             }}
@@ -615,7 +558,7 @@ export default function SubscriptionList({
                       </div>
                       <StatusToggle
                         active={sub.status === "ACTIVE"}
-                        onChange={() => toggleStatus(sub.subscriptionId)}
+                        onChange={() => toggleStatus(sub.id)}
                       />
                     </div>
                   </li>

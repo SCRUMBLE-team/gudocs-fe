@@ -7,3 +7,27 @@
 * {
   font-family: "Pretendard", sans-serif;
 }
+
+/* Override WDS primary color tokens */
+:root,
+[data-wds-theme="light"] {
+  --semantic-primary-normal: #0066FF;
+  --semantic-primary-normal-rgb: 0, 102, 255;
+  --semantic-primary-strong: #0052CC;
+  --semantic-primary-strong-rgb: 0, 82, 204;
+  --semantic-primary-heavy: #003D99;
+  --semantic-primary-heavy-rgb: 0, 61, 153;
+  --semantic-inverse-primary: #4D94FF;
+  --semantic-inverse-primary-rgb: 77, 148, 255;
+}
+
+[data-wds-theme="dark"] {
+  --semantic-primary-normal: #4D94FF;
+  --semantic-primary-normal-rgb: 77, 148, 255;
+  --semantic-primary-strong: #0066FF;
+  --semantic-primary-strong-rgb: 0, 102, 255;
+  --semantic-primary-heavy: #0052CC;
+  --semantic-primary-heavy-rgb: 0, 82, 204;
+  --semantic-inverse-primary: #0066FF;
+  --semantic-inverse-primary-rgb: 0, 102, 255;
+}

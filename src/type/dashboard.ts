@@ -2,7 +2,7 @@ import type { SubscribeCategory, SubscriptionDetail } from "./subscribe";
 
 export interface CategorySummary {
   category: SubscribeCategory;
-  amount: number;
+  monthlyAmount: number;
   ratio: number;
 }
 
@@ -17,12 +17,12 @@ export interface Dashboard {
 export interface UpcomingNotification {
   subscriptionId: number;
   serviceName: string;
-  paymentDate: string;
-  daysLeft: number;
-  message: string;
+  price: number;
+  nextBillingDate: string;
+  daysUntilBilling: number;
 }
 
 export type RecentSubscription = Pick<
   SubscriptionDetail,
-  "subscriptionId" | "serviceName" | "category" | "status" | "createdAt"
+  "id" | "serviceName" | "category" | "status" | "createdAt"
 >;

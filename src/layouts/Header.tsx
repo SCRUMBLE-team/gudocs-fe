@@ -1,20 +1,13 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography } from "@wanteddev/wds";
 import { IconBell } from "@wanteddev/wds-icon";
 import { useAuthStore } from "../stores/useAuthStore";
 import { logout } from "../api/auth";
-import { formatKRW, getDDayLabel, getDaysUntil } from "../utils/format";
-
-export interface BellNotification {
-  subscriptionId: number;
-  serviceName: string;
-  nextBillingDate: string;
-  price: number;
-}
+import type { UpcomingNotification } from "../type/dashboard";
 
 interface HeaderProps {
-  notifications?: BellNotification[];
+  notifications?: UpcomingNotification[];
 }
 
 export default function Header({ notifications = [] }: HeaderProps) {
@@ -46,8 +39,11 @@ export default function Header({ notifications = [] }: HeaderProps) {
   }, []);
 
   const upcomingNotifications = notifications.filter(
-    (n) => getDaysUntil(n.nextBillingDate) >= 0 && getDaysUntil(n.nextBillingDate) <= 7,
+    (n) => n.daysUntilBilling >= 0 && n.daysUntilBilling <= 7,
   );
+
+  const getDDayLabel = (days: number) =>
+    days === 0 ? "D-Day" : `D-${days}`;
 
   const initials = user?.name ? user.name.charAt(0).toUpperCase() : "U";
 
@@ -57,7 +53,7 @@ export default function Header({ notifications = [] }: HeaderProps) {
         height: "60px",
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: isAuthenticated ? "flex-end" : "space-between",
         padding: "0 24px",
         backgroundColor: "var(--semantic-background-normal-normal)",
         borderBottom: "1px solid var(--semantic-line-solid-normal)",
@@ -66,29 +62,31 @@ export default function Header({ notifications = [] }: HeaderProps) {
         zIndex: 100,
       }}
     >
-      {/* Logo */}
-      <div
-        style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
-        onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
-      >
+      {/* Logo — 미인증 상태에서만 표시 (인증 시 Sidebar가 담당) */}
+      {!isAuthenticated && (
         <div
-          style={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "8px",
-            background: "linear-gradient(135deg, #533afd 0%, #7c5cff 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
+          style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+          onClick={() => navigate("/")}
         >
-          <span style={{ color: "white", fontSize: "13px", fontWeight: "800" }}>S</span>
+          <div
+            style={{
+              width: "28px",
+              height: "28px",
+              borderRadius: "8px",
+              background: "linear-gradient(135deg, #0066FF 0%, #4D94FF 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <span style={{ color: "white", fontSize: "13px", fontWeight: "800" }}>S</span>
+          </div>
+          <Typography variant="title3" weight="bold" color="semantic.label.normal">
+            SubTrack
+          </Typography>
         </div>
-        <Typography variant="title3" weight="bold" color="semantic.label.normal">
-          SubTrack
-        </Typography>
-      </div>
+      )}
 
       {/* Right side */}
       {isAuthenticated ? (
@@ -193,29 +191,24 @@ export default function Header({ notifications = [] }: HeaderProps) {
                             style={{
                               fontSize: "11px",
                               fontWeight: "700",
-                              color: "#533afd",
-                              backgroundColor: "rgba(83,58,253,0.08)",
+                              color: "#0066FF",
+                              backgroundColor: "rgba(0,102,255,0.08)",
                               padding: "2px 6px",
                               borderRadius: "9999px",
                               letterSpacing: "-0.2px",
                             }}
                           >
-                            {getDDayLabel(n.nextBillingDate)}
+                            {getDDayLabel(n.daysUntilBilling)}
                           </span>
                           <Typography variant="body2" color="semantic.label.normal">
                             {n.serviceName}
                           </Typography>
                         </div>
                         <Typography
-                          variant="body2"
-                          weight="medium"
-                          color="semantic.label.normal"
-                          style={{
-                            fontFeatureSettings: '"tnum"',
-                            letterSpacing: "-0.42px",
-                          }}
+                          variant="caption1"
+                          color="semantic.label.alternative"
                         >
-                          {formatKRW(n.price)}
+                          {n.nextBillingDate}
                         </Typography>
                       </li>
                     ))}
@@ -256,7 +249,7 @@ export default function Header({ notifications = [] }: HeaderProps) {
                   width: "32px",
                   height: "32px",
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #533afd 0%, #7c5cff 100%)",
+                  background: "linear-gradient(135deg, #0066FF 0%, #4D94FF 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -310,7 +303,7 @@ export default function Header({ notifications = [] }: HeaderProps) {
                   style={{
                     padding: "14px 16px",
                     borderBottom: "1px solid var(--semantic-line-solid-normal)",
-                    background: "linear-gradient(135deg, rgba(83,58,253,0.06), rgba(124,92,255,0.06))",
+                    background: "linear-gradient(135deg, rgba(0,102,255,0.06), rgba(77,148,255,0.06))",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -319,7 +312,7 @@ export default function Header({ notifications = [] }: HeaderProps) {
                         width: "36px",
                         height: "36px",
                         borderRadius: "50%",
-                        background: "linear-gradient(135deg, #533afd, #7c5cff)",
+                        background: "linear-gradient(135deg, #0066FF, #4D94FF)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",

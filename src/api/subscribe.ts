@@ -55,9 +55,18 @@ export async function deleteSubscription(subscriptionId: string) {
   return response.data;
 }
 
-export async function changeSubscribeStatus(subscriptionId: string) {
+export async function changeSubscribeStatus({
+  subscriptionId,
+  status,
+}: {
+  subscriptionId: string;
+  status: SubscribeStatus;
+}) {
   const response = await server_axiosInstance.put(
     `/api/subscriptions/${subscriptionId}/status`,
+    {
+      status,
+    },
   );
   return response.data;
 }

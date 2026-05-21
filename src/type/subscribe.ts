@@ -27,7 +27,7 @@ export interface Subscription {
 
 // 서버 응답 — 서버 할당 필드 포함
 export interface SubscriptionDetail extends Subscription {
-  subscriptionId: number;
+  id: number;
   status: SubscribeStatus;
   createdAt: string;
   updatedAt: string;
