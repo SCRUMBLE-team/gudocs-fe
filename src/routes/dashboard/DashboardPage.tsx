@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { Button, Typography, Skeleton, FallbackView, FallbackViewContent, FallbackViewText, FallbackViewButton } from "@wanteddev/wds";
+import { Button, Typography, Skeleton } from "@wanteddev/wds";
 import type { Dashboard } from "../../type/dashboard";
 import type { SubscriptionDetail } from "../../type/subscribe";
 import { getDashboard } from "../../api/dashboard";
 import { getSubscriptions } from "../../api/subscribe";
+import { useAuthStore } from "../../stores/useAuthStore";
 import AppLayout from "../../layouts/AppLayout";
 import PaymentAlert from "../../components/dashboard/PaymentAlert";
+import LoginRequiredView from "../../components/dashboard/LoginRequiredView";
+import NetworkErrorView from "../../components/dashboard/NetworkErrorView";
 
 import SummaryCards from "../../components/dashboard/SummaryCards";
 import RecentSubscriptions from "../../components/dashboard/RecentSubscriptions";
@@ -14,6 +17,7 @@ import SubscriptionList from "../../components/dashboard/SubscriptionList";
 import SubscriptionFormModal from "../../components/dashboard/SubscriptionFormModal";
 
 export default function DashboardPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [subscriptions, setSubscriptions] = useState<SubscriptionDetail[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +53,32 @@ export default function DashboardPage() {
       cancelled = true;
     };
   }, [retryCount]);
+
+  if (authLoading) {
+    return (
+      <AppLayout notifications={[]}>
+        <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "24px 24px 48px" }}>
+          <DashboardSkeleton />
+        </main>
+      </AppLayout>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <AppLayout notifications={[]}>
+        <LoginRequiredView />
+      </AppLayout>
+    );
+  }
+
+  if (!loading && error) {
+    return (
+      <AppLayout notifications={[]}>
+        <NetworkErrorView onRetry={() => setRetryCount((c) => c + 1)} />
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout notifications={dashboard?.upcomingNotifications ?? []}>
@@ -100,17 +130,6 @@ export default function DashboardPage() {
         </div>
 
         {loading && <DashboardSkeleton />}
-
-        {!loading && error && (
-          <FallbackView>
-            <FallbackViewContent>
-              <FallbackViewText description={error ?? ""} />
-              <FallbackViewButton onClick={() => setRetryCount((c) => c + 1)}>
-                다시 시도
-              </FallbackViewButton>
-            </FallbackViewContent>
-          </FallbackView>
-        )}
 
         {!loading && !error && dashboard && (
           <>

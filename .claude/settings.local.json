@@ -3,7 +3,8 @@
     "allow": [
       "Bash(claude mcp *)",
       "WebFetch(domain:montage.wanted.co.kr)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

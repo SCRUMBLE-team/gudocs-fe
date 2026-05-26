@@ -3,7 +3,7 @@ import { useAuthStore } from "../stores/useAuthStore";
 import { getUser } from "../api/auth";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const { setUser, logout } = useAuthStore();
+  const { setUser, logout, setLoading } = useAuthStore();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -12,11 +12,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data);
       } catch {
         logout();
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUser();
-  }, [setUser, logout]);
+  }, [setUser, logout, setLoading]);
 
   return <>{children}</>;
 }
