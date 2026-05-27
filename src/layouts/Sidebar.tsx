@@ -53,7 +53,7 @@ export default function Sidebar() {
           }}
         >
           <span style={{ color: 'white', fontSize: '13px', fontWeight: '800' }}>
-            S
+            G
           </span>
         </div>
         <Typography
