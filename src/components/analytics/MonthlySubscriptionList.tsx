@@ -131,9 +131,9 @@ export default function MonthlySubscriptionList({ details, year, month }: Props)
                 return (
                   <tr
                     key={sub.subscriptionId}
-                    onClick={() => navigate(`/subscriptions/${sub.subscriptionId}`)}
+                    onClick={() => !isDeleted && navigate(`/subscriptions/${sub.subscriptionId}`)}
                     style={{
-                      cursor: "pointer",
+                      cursor: isDeleted ? "default" : "pointer",
                       opacity: isDeleted || isPaused ? 0.6 : 1,
                       transition: "background 0.12s",
                     }}
