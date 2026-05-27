@@ -83,7 +83,7 @@ export default function Header({ notifications = [] }: HeaderProps) {
             <span style={{ color: "white", fontSize: "13px", fontWeight: "800" }}>S</span>
           </div>
           <Typography variant="title3" weight="bold" color="semantic.label.normal">
-            SubTrack
+            Gudocs
           </Typography>
         </div>
       )}
