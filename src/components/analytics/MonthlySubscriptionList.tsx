@@ -16,8 +16,9 @@ const BILLING_CYCLE_LABEL: Record<string, string> = {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  ACTIVE: { label: "활성", color: "#16a34a", bg: "rgba(34,197,94,0.1)" },
-  PAUSED: { label: "일시 정지", color: "#94a3b8", bg: "rgba(148,163,184,0.12)" },
+  ACTIVE:  { label: "활성",     color: "#16a34a", bg: "rgba(34,197,94,0.1)"    },
+  PAUSED:  { label: "일시 정지", color: "#94a3b8", bg: "rgba(148,163,184,0.12)" },
+  DELETED: { label: "삭제됨",   color: "#ef4444", bg: "rgba(239,68,68,0.1)"    },
 };
 
 export default function MonthlySubscriptionList({ details, year, month }: Props) {
@@ -119,19 +120,21 @@ export default function MonthlySubscriptionList({ details, year, month }: Props)
                 const catMeta = CATEGORY_META[sub.category];
                 const cycleLabel =
                   BILLING_CYCLE_LABEL[sub.billingCycle] ?? sub.billingCycle;
-                const statusCfg = STATUS_CONFIG[sub.status] ?? {
+                const isDeleted = sub.deleted;
+                const isPaused = sub.status === "PAUSED";
+                const statusKey = isDeleted ? "DELETED" : sub.status;
+                const statusCfg = STATUS_CONFIG[statusKey] ?? {
                   label: sub.status,
                   color: "#64748b",
                   bg: "rgba(100,116,139,0.1)",
                 };
-                const isPaused = sub.status === "PAUSED";
                 return (
                   <tr
                     key={sub.subscriptionId}
                     onClick={() => navigate(`/subscriptions/${sub.subscriptionId}`)}
                     style={{
                       cursor: "pointer",
-                      opacity: isPaused ? 0.6 : 1,
+                      opacity: isDeleted || isPaused ? 0.6 : 1,
                       transition: "background 0.12s",
                     }}
                     onMouseEnter={(e) => {
