@@ -1,20 +1,20 @@
-﻿import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Typography } from '@wanteddev/wds';
-import { IconBell } from '@wanteddev/wds-icon';
-import { useAuthStore } from '../stores/useAuthStore';
-import { logout } from '../api/auth';
-import type { UpcomingNotification } from '../type/dashboard';
+import { getUpcomingNotification } from "../api/subscribe";
+import type { UpcomingNotification } from "../type/dashboard";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Typography } from "@wanteddev/wds";
+import { IconBell } from "@wanteddev/wds-icon";
+import { useAuthStore } from "../stores/useAuthStore";
+import { logout } from "../api/auth";
 
-interface HeaderProps {
-  notifications?: UpcomingNotification[];
-}
-
-export default function Header({ notifications = [] }: HeaderProps) {
+export default function Header() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout: clearAuth } = useAuthStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
+  const [upcomingNotifications, setUpcomingNotifications] = useState<
+    UpcomingNotification[]
+  >([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLDivElement>(null);
 
@@ -22,8 +22,18 @@ export default function Header({ notifications = [] }: HeaderProps) {
     await logout();
     clearAuth();
     setDropdownOpen(false);
-    navigate('/login');
+    navigate("/login");
   };
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setUpcomingNotifications([]);
+      return;
+    }
+    getUpcomingNotification()
+      .then((res) => setUpcomingNotifications(res.data))
+      .catch(() => setUpcomingNotifications([]));
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -37,29 +47,25 @@ export default function Header({ notifications = [] }: HeaderProps) {
         setBellOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const upcomingNotifications = notifications.filter(
-    (n) => n.daysUntilBilling >= 0 && n.daysUntilBilling <= 7,
-  );
+  const getDDayLabel = (days: number) => (days === 0 ? "D-Day" : `D-${days}`);
 
-  const getDDayLabel = (days: number) => (days === 0 ? 'D-Day' : `D-${days}`);
-
-  const initials = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
+  const initials = user?.name ? user.name.charAt(0).toUpperCase() : "U";
 
   return (
     <header
       style={{
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: isAuthenticated ? 'flex-end' : 'space-between',
-        padding: '0 24px',
-        backgroundColor: 'var(--semantic-background-normal-normal)',
-        borderBottom: '1px solid var(--semantic-line-solid-normal)',
-        position: 'sticky',
+        height: "60px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: isAuthenticated ? "flex-end" : "space-between",
+        padding: "0 24px",
+        backgroundColor: "var(--semantic-background-normal-normal)",
+        borderBottom: "1px solid var(--semantic-line-solid-normal)",
+        position: "sticky",
         top: 0,
         zIndex: 100,
       }}
@@ -68,27 +74,27 @@ export default function Header({ notifications = [] }: HeaderProps) {
       {!isAuthenticated && (
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            cursor: "pointer",
           }}
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
         >
           <div
             style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '8px',
-              background: 'linear-gradient(135deg, #0066FF 0%, #4D94FF 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              width: "28px",
+              height: "28px",
+              borderRadius: "8px",
+              background: "linear-gradient(135deg, #0066FF 0%, #4D94FF 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               flexShrink: 0,
             }}
           >
             <span
-              style={{ color: 'white', fontSize: '13px', fontWeight: '800' }}
+              style={{ color: "white", fontSize: "13px", fontWeight: "800" }}
             >
               G
             </span>
@@ -105,52 +111,52 @@ export default function Header({ notifications = [] }: HeaderProps) {
 
       {/* Right side */}
       {isAuthenticated ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {/* Bell */}
-          <div ref={bellRef} style={{ position: 'relative' }}>
+          <div ref={bellRef} style={{ position: "relative" }}>
             <button
               onClick={() => setBellOpen((prev) => !prev)}
               style={{
-                position: 'relative',
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#64748d',
-                transition: 'background 0.15s',
+                position: "relative",
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#64748d",
+                transition: "background 0.15s",
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'var(--semantic-background-normal-alternative)';
+                  "var(--semantic-background-normal-alternative)";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'transparent';
+                  "transparent";
               }}
             >
               <IconBell width={20} height={20} />
               {upcomingNotifications.length > 0 && (
                 <span
                   style={{
-                    position: 'absolute',
-                    top: '4px',
-                    right: '4px',
-                    minWidth: '16px',
-                    height: '16px',
-                    borderRadius: '9999px',
-                    backgroundColor: '#ef4444',
-                    color: 'white',
-                    fontSize: '10px',
-                    fontWeight: '700',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '0 4px',
+                    position: "absolute",
+                    top: "4px",
+                    right: "4px",
+                    minWidth: "16px",
+                    height: "16px",
+                    borderRadius: "9999px",
+                    backgroundColor: "#ef4444",
+                    color: "white",
+                    fontSize: "10px",
+                    fontWeight: "700",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 4px",
                     lineHeight: 1,
                   }}
                 >
@@ -162,22 +168,22 @@ export default function Header({ notifications = [] }: HeaderProps) {
             {bellOpen && (
               <div
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: 0,
-                  top: 'calc(100% + 8px)',
-                  width: '280px',
-                  backgroundColor: 'var(--semantic-background-normal-normal)',
-                  borderRadius: '14px',
+                  top: "calc(100% + 8px)",
+                  width: "280px",
+                  backgroundColor: "var(--semantic-background-normal-normal)",
+                  borderRadius: "14px",
                   boxShadow:
-                    '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
-                  border: '1px solid #e3e8ee',
-                  overflow: 'hidden',
+                    "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+                  border: "1px solid #e3e8ee",
+                  overflow: "hidden",
                 }}
               >
                 <div
                   style={{
-                    padding: '12px 16px',
-                    borderBottom: '1px solid var(--semantic-line-solid-normal)',
+                    padding: "12px 16px",
+                    borderBottom: "1px solid var(--semantic-line-solid-normal)",
                   }}
                 >
                   <Typography
@@ -189,7 +195,7 @@ export default function Header({ notifications = [] }: HeaderProps) {
                   </Typography>
                 </div>
                 {upcomingNotifications.length === 0 ? (
-                  <div style={{ padding: '20px 16px', textAlign: 'center' }}>
+                  <div style={{ padding: "20px 16px", textAlign: "center" }}>
                     <Typography
                       variant="body2"
                       color="semantic.label.alternative"
@@ -198,34 +204,34 @@ export default function Header({ notifications = [] }: HeaderProps) {
                     </Typography>
                   </div>
                 ) : (
-                  <ul style={{ listStyle: 'none', margin: 0, padding: '6px' }}>
+                  <ul style={{ listStyle: "none", margin: 0, padding: "6px" }}>
                     {upcomingNotifications.map((n) => (
                       <li
                         key={n.subscriptionId}
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '8px 10px',
-                          borderRadius: '8px',
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "8px 10px",
+                          borderRadius: "8px",
                         }}
                       >
                         <div
                           style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
                           }}
                         >
                           <span
                             style={{
-                              fontSize: '11px',
-                              fontWeight: '700',
-                              color: '#0066FF',
-                              backgroundColor: 'rgba(0,102,255,0.08)',
-                              padding: '2px 6px',
-                              borderRadius: '9999px',
-                              letterSpacing: '-0.2px',
+                              fontSize: "11px",
+                              fontWeight: "700",
+                              color: "#0066FF",
+                              backgroundColor: "rgba(0,102,255,0.08)",
+                              padding: "2px 6px",
+                              borderRadius: "9999px",
+                              letterSpacing: "-0.2px",
                             }}
                           >
                             {getDDayLabel(n.daysUntilBilling)}
@@ -252,46 +258,46 @@ export default function Header({ notifications = [] }: HeaderProps) {
           </div>
 
           {/* User dropdown */}
-          <div ref={dropdownRef} style={{ position: 'relative' }}>
+          <div ref={dropdownRef} style={{ position: "relative" }}>
             <button
               onClick={() => setDropdownOpen((prev) => !prev)}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                background: 'none',
-                border: '1px solid transparent',
-                cursor: 'pointer',
-                padding: '4px 8px',
-                borderRadius: '10px',
-                transition: 'background 0.15s, border-color 0.15s',
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "none",
+                border: "1px solid transparent",
+                cursor: "pointer",
+                padding: "4px 8px",
+                borderRadius: "10px",
+                transition: "background 0.15s, border-color 0.15s",
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'var(--semantic-background-normal-alternative)';
+                  "var(--semantic-background-normal-alternative)";
                 (e.currentTarget as HTMLButtonElement).style.borderColor =
-                  'var(--semantic-line-solid-normal)';
+                  "var(--semantic-line-solid-normal)";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'transparent';
+                  "transparent";
                 (e.currentTarget as HTMLButtonElement).style.borderColor =
-                  'transparent';
+                  "transparent";
               }}
             >
               <div
                 style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
                   background:
-                    'linear-gradient(135deg, #0066FF 0%, #4D94FF 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: '700',
-                  fontSize: '14px',
+                    "linear-gradient(135deg, #0066FF 0%, #4D94FF 100%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontWeight: "700",
+                  fontSize: "14px",
                   flexShrink: 0,
                 }}
               >
@@ -310,8 +316,8 @@ export default function Header({ notifications = [] }: HeaderProps) {
                 viewBox="0 0 14 14"
                 fill="none"
                 style={{
-                  transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.2s ease',
+                  transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease",
                   opacity: 0.45,
                 }}
               >
@@ -328,60 +334,60 @@ export default function Header({ notifications = [] }: HeaderProps) {
             {dropdownOpen && (
               <div
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   right: 0,
-                  top: 'calc(100% + 8px)',
-                  width: '210px',
-                  backgroundColor: 'var(--semantic-background-normal-normal)',
-                  borderRadius: '14px',
+                  top: "calc(100% + 8px)",
+                  width: "210px",
+                  backgroundColor: "var(--semantic-background-normal-normal)",
+                  borderRadius: "14px",
                   boxShadow:
-                    '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
-                  border: '1px solid var(--semantic-line-solid-normal)',
-                  overflow: 'hidden',
+                    "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+                  border: "1px solid var(--semantic-line-solid-normal)",
+                  overflow: "hidden",
                 }}
               >
                 <div
                   style={{
-                    padding: '14px 16px',
-                    borderBottom: '1px solid var(--semantic-line-solid-normal)',
+                    padding: "14px 16px",
+                    borderBottom: "1px solid var(--semantic-line-solid-normal)",
                     background:
-                      'linear-gradient(135deg, rgba(0,102,255,0.06), rgba(77,148,255,0.06))',
+                      "linear-gradient(135deg, rgba(0,102,255,0.06), rgba(77,148,255,0.06))",
                   }}
                 >
                   <div
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
                     }}
                   >
                     <div
                       style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #0066FF, #4D94FF)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontWeight: '700',
-                        fontSize: '15px',
+                        width: "36px",
+                        height: "36px",
+                        borderRadius: "50%",
+                        background: "linear-gradient(135deg, #0066FF, #4D94FF)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontWeight: "700",
+                        fontSize: "15px",
                         flexShrink: 0,
                       }}
                     >
                       {initials}
                     </div>
-                    <div style={{ overflow: 'hidden' }}>
+                    <div style={{ overflow: "hidden" }}>
                       <Typography
                         variant="label1"
                         weight="bold"
                         color="semantic.label.normal"
                         style={{
-                          display: 'block',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          display: "block",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         {user?.name}
@@ -390,10 +396,10 @@ export default function Header({ notifications = [] }: HeaderProps) {
                         variant="caption1"
                         color="semantic.label.alternative"
                         style={{
-                          display: 'block',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          display: "block",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         {user?.email}
@@ -402,38 +408,38 @@ export default function Header({ notifications = [] }: HeaderProps) {
                   </div>
                 </div>
 
-                <div style={{ padding: '6px' }}>
+                <div style={{ padding: "6px" }}>
                   <button
                     onClick={() => {
-                      navigate('/mypage');
+                      navigate("/mypage");
                       setDropdownOpen(false);
                     }}
                     style={{
-                      width: '100%',
-                      padding: '9px 12px',
-                      textAlign: 'left',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      fontSize: '14px',
-                      color: 'var(--semantic-label-normal)',
-                      borderRadius: '8px',
-                      transition: 'background 0.1s',
-                      fontFamily: 'Pretendard, sans-serif',
+                      width: "100%",
+                      padding: "9px 12px",
+                      textAlign: "left",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      fontSize: "14px",
+                      color: "var(--semantic-label-normal)",
+                      borderRadius: "8px",
+                      transition: "background 0.1s",
+                      fontFamily: "Pretendard, sans-serif",
                     }}
                     onMouseEnter={(e) => {
                       (
                         e.currentTarget as HTMLButtonElement
                       ).style.backgroundColor =
-                        'var(--semantic-background-normal-alternative)';
+                        "var(--semantic-background-normal-alternative)";
                     }}
                     onMouseLeave={(e) => {
                       (
                         e.currentTarget as HTMLButtonElement
-                      ).style.backgroundColor = 'transparent';
+                      ).style.backgroundColor = "transparent";
                     }}
                   >
                     <svg
@@ -462,39 +468,39 @@ export default function Header({ notifications = [] }: HeaderProps) {
 
                   <div
                     style={{
-                      height: '1px',
-                      backgroundColor: 'var(--semantic-line-solid-normal)',
-                      margin: '4px 0',
+                      height: "1px",
+                      backgroundColor: "var(--semantic-line-solid-normal)",
+                      margin: "4px 0",
                     }}
                   />
 
                   <button
                     onClick={handleLogout}
                     style={{
-                      width: '100%',
-                      padding: '9px 12px',
-                      textAlign: 'left',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      fontSize: '14px',
-                      color: '#dc2626',
-                      borderRadius: '8px',
-                      transition: 'background 0.1s',
-                      fontFamily: 'Pretendard, sans-serif',
+                      width: "100%",
+                      padding: "9px 12px",
+                      textAlign: "left",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      fontSize: "14px",
+                      color: "#dc2626",
+                      borderRadius: "8px",
+                      transition: "background 0.1s",
+                      fontFamily: "Pretendard, sans-serif",
                     }}
                     onMouseEnter={(e) => {
                       (
                         e.currentTarget as HTMLButtonElement
-                      ).style.backgroundColor = '#fef2f2';
+                      ).style.backgroundColor = "#fef2f2";
                     }}
                     onMouseLeave={(e) => {
                       (
                         e.currentTarget as HTMLButtonElement
-                      ).style.backgroundColor = 'transparent';
+                      ).style.backgroundColor = "transparent";
                     }}
                   >
                     <svg
@@ -526,12 +532,12 @@ export default function Header({ notifications = [] }: HeaderProps) {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: "flex", gap: "8px" }}>
           <Button
             variant="outlined"
             color="assistive"
             size="small"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
           >
             로그인
           </Button>
