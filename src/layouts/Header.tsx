@@ -4,17 +4,15 @@ import { Button, Typography } from "@wanteddev/wds";
 import { IconBell } from "@wanteddev/wds-icon";
 import { useAuthStore } from "../stores/useAuthStore";
 import { logout } from "../api/auth";
+import { getUpcomingNotification } from "../api/subscribe";
 import type { UpcomingNotification } from "../type/dashboard";
 
-interface HeaderProps {
-  notifications?: UpcomingNotification[];
-}
-
-export default function Header({ notifications = [] }: HeaderProps) {
+export default function Header() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout: clearAuth } = useAuthStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
+  const [upcomingNotifications, setUpcomingNotifications] = useState<UpcomingNotification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +22,16 @@ export default function Header({ notifications = [] }: HeaderProps) {
     setDropdownOpen(false);
     navigate("/login");
   };
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setUpcomingNotifications([]);
+      return;
+    }
+    getUpcomingNotification()
+      .then((res) => setUpcomingNotifications(res.data))
+      .catch(() => setUpcomingNotifications([]));
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -37,10 +45,6 @@ export default function Header({ notifications = [] }: HeaderProps) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const upcomingNotifications = notifications.filter(
-    (n) => n.daysUntilBilling >= 0 && n.daysUntilBilling <= 7,
-  );
 
   const getDDayLabel = (days: number) =>
     days === 0 ? "D-Day" : `D-${days}`;

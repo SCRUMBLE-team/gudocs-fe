@@ -56,7 +56,7 @@ export default function DashboardPage() {
 
   if (authLoading) {
     return (
-      <AppLayout notifications={[]}>
+      <AppLayout >
         <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "24px 24px 48px" }}>
           <DashboardSkeleton />
         </main>
@@ -66,7 +66,7 @@ export default function DashboardPage() {
 
   if (!isAuthenticated) {
     return (
-      <AppLayout notifications={[]}>
+      <AppLayout >
         <LoginRequiredView />
       </AppLayout>
     );
@@ -74,14 +74,14 @@ export default function DashboardPage() {
 
   if (!loading && error) {
     return (
-      <AppLayout notifications={[]}>
+      <AppLayout >
         <NetworkErrorView onRetry={() => setRetryCount((c) => c + 1)} />
       </AppLayout>
     );
   }
 
   return (
-    <AppLayout notifications={dashboard?.upcomingNotifications ?? []}>
+    <AppLayout>
       <main
         style={{
           maxWidth: "1200px",
@@ -133,7 +133,7 @@ export default function DashboardPage() {
 
         {!loading && !error && dashboard && (
           <>
-            <PaymentAlert notifications={dashboard.upcomingNotifications} />
+            <PaymentAlert notifications={dashboard.upcomingNotifications ?? []} />
             <SummaryCards
               monthlyTotalExpense={dashboard.monthlyTotalExpense}
               activeSubscriptionCount={dashboard.activeSubscriptionCount}

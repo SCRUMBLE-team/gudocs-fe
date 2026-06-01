@@ -15,11 +15,11 @@ export interface Dashboard {
 }
 
 export interface UpcomingNotification {
-  subscriptionId: number;
-  serviceName: string;
-  price: number;
-  nextBillingDate: string;
   daysUntilBilling: number;
+  nextBillingDate: string;
+  price: number;
+  serviceName: string;
+  subscriptionId: number;
 }
 
 export type RecentSubscription = Pick<

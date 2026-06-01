@@ -1,4 +1,5 @@
 import type { ApiResponse } from "../type/api";
+import type { UpcomingNotification } from "../type/dashboard";
 import type {
   SubscribeCategory,
   SubscribeStatus,
@@ -67,6 +68,15 @@ export async function changeSubscribeStatus({
     {
       status,
     },
+  );
+  return response.data;
+}
+
+export async function getUpcomingNotification(): Promise<
+  ApiResponse<UpcomingNotification[]>
+> {
+  const response = await server_axiosInstance.get(
+    "/api/notifications/upcoming",
   );
   return response.data;
 }
