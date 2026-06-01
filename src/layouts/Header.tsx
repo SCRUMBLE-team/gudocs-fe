@@ -1,18 +1,20 @@
-﻿import { useState, useRef, useEffect } from "react";
+import { getUpcomingNotification } from "../api/subscribe";
+import type { UpcomingNotification } from "../type/dashboard";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography } from "@wanteddev/wds";
 import { IconBell } from "@wanteddev/wds-icon";
 import { useAuthStore } from "../stores/useAuthStore";
 import { logout } from "../api/auth";
-import { getUpcomingNotification } from "../api/subscribe";
-import type { UpcomingNotification } from "../type/dashboard";
 
 export default function Header() {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout: clearAuth } = useAuthStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
-  const [upcomingNotifications, setUpcomingNotifications] = useState<UpcomingNotification[]>([]);
+  const [upcomingNotifications, setUpcomingNotifications] = useState<
+    UpcomingNotification[]
+  >([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLDivElement>(null);
 
@@ -35,7 +37,10 @@ export default function Header() {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setDropdownOpen(false);
       }
       if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
@@ -46,8 +51,7 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const getDDayLabel = (days: number) =>
-    days === 0 ? "D-Day" : `D-${days}`;
+  const getDDayLabel = (days: number) => (days === 0 ? "D-Day" : `D-${days}`);
 
   const initials = user?.name ? user.name.charAt(0).toUpperCase() : "U";
 
@@ -69,7 +73,12 @@ export default function Header() {
       {/* Logo — 미인증 상태에서만 표시 (인증 시 Sidebar가 담당) */}
       {!isAuthenticated && (
         <div
-          style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            cursor: "pointer",
+          }}
           onClick={() => navigate("/")}
         >
           <div
@@ -84,10 +93,18 @@ export default function Header() {
               flexShrink: 0,
             }}
           >
-            <span style={{ color: "white", fontSize: "13px", fontWeight: "800" }}>S</span>
+            <span
+              style={{ color: "white", fontSize: "13px", fontWeight: "800" }}
+            >
+              G
+            </span>
           </div>
-          <Typography variant="title3" weight="bold" color="semantic.label.normal">
-            SubTrack
+          <Typography
+            variant="title3"
+            weight="bold"
+            color="semantic.label.normal"
+          >
+            Gudocs
           </Typography>
         </div>
       )}
@@ -118,7 +135,8 @@ export default function Header() {
                   "var(--semantic-background-normal-alternative)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  "transparent";
               }}
             >
               <IconBell width={20} height={20} />
@@ -156,7 +174,8 @@ export default function Header() {
                   width: "280px",
                   backgroundColor: "var(--semantic-background-normal-normal)",
                   borderRadius: "14px",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+                  boxShadow:
+                    "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
                   border: "1px solid #e3e8ee",
                   overflow: "hidden",
                 }}
@@ -167,13 +186,20 @@ export default function Header() {
                     borderBottom: "1px solid var(--semantic-line-solid-normal)",
                   }}
                 >
-                  <Typography variant="label1" weight="bold" color="semantic.label.normal">
+                  <Typography
+                    variant="label1"
+                    weight="bold"
+                    color="semantic.label.normal"
+                  >
                     결제 예정 알림
                   </Typography>
                 </div>
                 {upcomingNotifications.length === 0 ? (
                   <div style={{ padding: "20px 16px", textAlign: "center" }}>
-                    <Typography variant="body2" color="semantic.label.alternative">
+                    <Typography
+                      variant="body2"
+                      color="semantic.label.alternative"
+                    >
                       7일 내 결제 예정 없음
                     </Typography>
                   </div>
@@ -190,7 +216,13 @@ export default function Header() {
                           borderRadius: "8px",
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
                           <span
                             style={{
                               fontSize: "11px",
@@ -204,7 +236,10 @@ export default function Header() {
                           >
                             {getDDayLabel(n.daysUntilBilling)}
                           </span>
-                          <Typography variant="body2" color="semantic.label.normal">
+                          <Typography
+                            variant="body2"
+                            color="semantic.label.normal"
+                          >
                             {n.serviceName}
                           </Typography>
                         </div>
@@ -244,8 +279,10 @@ export default function Header() {
                   "var(--semantic-line-solid-normal)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "transparent";
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  "transparent";
+                (e.currentTarget as HTMLButtonElement).style.borderColor =
+                  "transparent";
               }}
             >
               <div
@@ -253,7 +290,8 @@ export default function Header() {
                   width: "32px",
                   height: "32px",
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #0066FF 0%, #4D94FF 100%)",
+                  background:
+                    "linear-gradient(135deg, #0066FF 0%, #4D94FF 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -265,7 +303,11 @@ export default function Header() {
               >
                 {initials}
               </div>
-              <Typography variant="body2" weight="medium" color="semantic.label.normal">
+              <Typography
+                variant="body2"
+                weight="medium"
+                color="semantic.label.normal"
+              >
                 {user?.name}
               </Typography>
               <svg
@@ -298,7 +340,8 @@ export default function Header() {
                   width: "210px",
                   backgroundColor: "var(--semantic-background-normal-normal)",
                   borderRadius: "14px",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+                  boxShadow:
+                    "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
                   border: "1px solid var(--semantic-line-solid-normal)",
                   overflow: "hidden",
                 }}
@@ -307,10 +350,17 @@ export default function Header() {
                   style={{
                     padding: "14px 16px",
                     borderBottom: "1px solid var(--semantic-line-solid-normal)",
-                    background: "linear-gradient(135deg, rgba(0,102,255,0.06), rgba(77,148,255,0.06))",
+                    background:
+                      "linear-gradient(135deg, rgba(0,102,255,0.06), rgba(77,148,255,0.06))",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
                     <div
                       style={{
                         width: "36px",
@@ -333,14 +383,24 @@ export default function Header() {
                         variant="label1"
                         weight="bold"
                         color="semantic.label.normal"
-                        style={{ display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                        style={{
+                          display: "block",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
                       >
                         {user?.name}
                       </Typography>
                       <Typography
                         variant="caption1"
                         color="semantic.label.alternative"
-                        style={{ display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                        style={{
+                          display: "block",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
                       >
                         {user?.email}
                       </Typography>
@@ -350,7 +410,10 @@ export default function Header() {
 
                 <div style={{ padding: "6px" }}>
                   <button
-                    onClick={() => { navigate("/mypage"); setDropdownOpen(false); }}
+                    onClick={() => {
+                      navigate("/mypage");
+                      setDropdownOpen(false);
+                    }}
                     style={{
                       width: "100%",
                       padding: "9px 12px",
@@ -367,17 +430,49 @@ export default function Header() {
                       transition: "background 0.1s",
                       fontFamily: "Pretendard, sans-serif",
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--semantic-background-normal-alternative)"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; }}
+                    onMouseEnter={(e) => {
+                      (
+                        e.currentTarget as HTMLButtonElement
+                      ).style.backgroundColor =
+                        "var(--semantic-background-normal-alternative)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (
+                        e.currentTarget as HTMLButtonElement
+                      ).style.backgroundColor = "transparent";
+                    }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, opacity: 0.7 }}>
-                      <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.4" />
-                      <path d="M2.5 13.5c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      style={{ flexShrink: 0, opacity: 0.7 }}
+                    >
+                      <circle
+                        cx="8"
+                        cy="5.5"
+                        r="2.5"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                      />
+                      <path
+                        d="M2.5 13.5c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                      />
                     </svg>
                     마이페이지
                   </button>
 
-                  <div style={{ height: "1px", backgroundColor: "var(--semantic-line-solid-normal)", margin: "4px 0" }} />
+                  <div
+                    style={{
+                      height: "1px",
+                      backgroundColor: "var(--semantic-line-solid-normal)",
+                      margin: "4px 0",
+                    }}
+                  />
 
                   <button
                     onClick={handleLogout}
@@ -397,12 +492,37 @@ export default function Header() {
                       transition: "background 0.1s",
                       fontFamily: "Pretendard, sans-serif",
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#fef2f2"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; }}
+                    onMouseEnter={(e) => {
+                      (
+                        e.currentTarget as HTMLButtonElement
+                      ).style.backgroundColor = "#fef2f2";
+                    }}
+                    onMouseLeave={(e) => {
+                      (
+                        e.currentTarget as HTMLButtonElement
+                      ).style.backgroundColor = "transparent";
+                    }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-                      <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                      <path d="M10.5 11l3-3-3-3M13.5 8H6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <path
+                        d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M10.5 11l3-3-3-3M13.5 8H6"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                     로그아웃
                   </button>
@@ -413,7 +533,12 @@ export default function Header() {
         </div>
       ) : (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button variant="outlined" color="assistive" size="small" onClick={() => navigate("/login")}>
+          <Button
+            variant="outlined"
+            color="assistive"
+            size="small"
+            onClick={() => navigate("/login")}
+          >
             로그인
           </Button>
         </div>

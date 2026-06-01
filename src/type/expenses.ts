@@ -51,5 +51,6 @@ export interface MonthlyDetailData {
     billingMonth: number;
     paymentMethod: string;
     status: string;
+    deleted: boolean;
   }[];
 }
