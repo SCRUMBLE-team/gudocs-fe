@@ -76,7 +76,20 @@ export async function getUpcomingNotification(): Promise<
   ApiResponse<UpcomingNotification[]>
 > {
   const response = await server_axiosInstance.get(
-    "/api/notifications/upcoming",
+    `/api/notifications/upcoming`,
   );
+  return response.data;
+}
+
+export async function getCheckName({
+  name,
+}: {
+  name: string;
+}): Promise<ApiResponse<boolean>> {
+  const response = await server_axiosInstance.get(
+    `/api/subscriptions/check-name`,
+    { params: { name } },
+  );
+
   return response.data;
 }

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Typography } from "@wanteddev/wds";
 import { IconBell } from "@wanteddev/wds-icon";
 import { useAuthStore } from "../stores/useAuthStore";
+import { useNotificationStore } from "../stores/useNotificationStore";
 import { logout } from "../api/auth";
 
 export default function Header() {
@@ -15,12 +16,19 @@ export default function Header() {
   const [upcomingNotifications, setUpcomingNotifications] = useState<
     UpcomingNotification[]
   >([]);
+  const { readIds, markAllRead, clearReadIds } = useNotificationStore();
+  const [unreadAtOpen, setUnreadAtOpen] = useState<number[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLDivElement>(null);
+
+  const unreadCount = upcomingNotifications.filter(
+    (n) => !readIds.includes(n.subscriptionId)
+  ).length;
 
   const handleLogout = async () => {
     await logout();
     clearAuth();
+    clearReadIds();
     setDropdownOpen(false);
     navigate("/login");
   };
@@ -45,6 +53,7 @@ export default function Header() {
       }
       if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
         setBellOpen(false);
+        setUnreadAtOpen([]);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -115,7 +124,21 @@ export default function Header() {
           {/* Bell */}
           <div ref={bellRef} style={{ position: "relative" }}>
             <button
-              onClick={() => setBellOpen((prev) => !prev)}
+              onClick={() => {
+                setBellOpen((prev) => {
+                  const opening = !prev;
+                  if (opening) {
+                    const currentUnread = upcomingNotifications
+                      .filter((n) => !readIds.includes(n.subscriptionId))
+                      .map((n) => n.subscriptionId);
+                    setUnreadAtOpen(currentUnread);
+                    if (currentUnread.length > 0) markAllRead(currentUnread);
+                  } else {
+                    setUnreadAtOpen([]);
+                  }
+                  return opening;
+                });
+              }}
               style={{
                 position: "relative",
                 width: "36px",
@@ -140,7 +163,7 @@ export default function Header() {
               }}
             >
               <IconBell width={20} height={20} />
-              {upcomingNotifications.length > 0 && (
+              {unreadCount > 0 && (
                 <span
                   style={{
                     position: "absolute",
@@ -160,7 +183,7 @@ export default function Header() {
                     lineHeight: 1,
                   }}
                 >
-                  {upcomingNotifications.length}
+                  {unreadCount}
                 </span>
               )}
             </button>
@@ -223,6 +246,17 @@ export default function Header() {
                             gap: "8px",
                           }}
                         >
+                          {unreadAtOpen.includes(n.subscriptionId) && (
+                            <span
+                              style={{
+                                width: "7px",
+                                height: "7px",
+                                borderRadius: "50%",
+                                backgroundColor: "#ef4444",
+                                flexShrink: 0,
+                              }}
+                            />
+                          )}
                           <span
                             style={{
                               fontSize: "11px",
