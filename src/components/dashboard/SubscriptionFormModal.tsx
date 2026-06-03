@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   ModalContainer,
@@ -27,7 +27,7 @@ import {
   BILLING_CYCLE_META,
   PAYMENT_METHOD_META,
 } from "../../type/subscribe";
-import { createSubscriptions } from "../../api/subscribe";
+import { createSubscriptions, getCheckName } from "../../api/subscribe";
 
 interface Props {
   open: boolean;
@@ -52,6 +52,20 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
   const [form, setForm] = useState<Subscription>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [isDuplicateName, setIsDuplicateName] = useState(false);
+
+  useEffect(() => {
+    if (!form.serviceName.trim()) {
+      setIsDuplicateName(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      getCheckName({ name: form.serviceName.trim() })
+        .then((res) => setIsDuplicateName(res.data))
+        .catch(() => setIsDuplicateName(false));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [form.serviceName]);
 
   const validate = (): FormErrors => {
     const errs: FormErrors = {};
@@ -64,6 +78,7 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
   };
 
   const handleSubmit = async () => {
+    if (isDuplicateName) return;
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -91,6 +106,7 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
     if (submitting) return;
     setForm(INITIAL_FORM);
     setErrors({});
+    setIsDuplicateName(false);
     onClose();
   };
 
@@ -119,11 +135,15 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
                 onChange={(e) => {
                   setForm((f) => ({ ...f, serviceName: e.target.value }));
                   if (errors.serviceName) setErrors((p) => ({ ...p, serviceName: undefined }));
+                  setIsDuplicateName(false);
                 }}
-                invalid={!!errors.serviceName}
+                invalid={!!errors.serviceName || isDuplicateName}
                 width="100%"
               />
               {errors.serviceName && <FormErrorMessage>{errors.serviceName}</FormErrorMessage>}
+              {isDuplicateName && (
+                <FormErrorMessage>이미 등록된 서비스명입니다.</FormErrorMessage>
+              )}
             </FormField>
           </ModalContentItem>
 
