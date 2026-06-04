@@ -47,7 +47,11 @@ const INITIAL_FORM: Subscription = {
 
 type FormErrors = Partial<Record<keyof Subscription, string>>;
 
-export default function SubscriptionFormModal({ open, onClose, onSuccess }: Props) {
+export default function SubscriptionFormModal({
+  open,
+  onClose,
+  onSuccess,
+}: Props) {
   const toast = useToast();
   const [form, setForm] = useState<Subscription>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -71,14 +75,16 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
     const errs: FormErrors = {};
     if (!form.serviceName.trim()) errs.serviceName = "서비스명을 입력하세요.";
     if (!form.price || form.price <= 0) errs.price = "금액을 입력하세요.";
-    if (form.billingCycle === "YEARLY" && (!form.billingMonth || form.billingMonth < 1)) {
+    if (
+      form.billingCycle === "YEARLY" &&
+      (!form.billingMonth || form.billingMonth < 1)
+    ) {
       errs.billingMonth = "결제 월을 선택하세요.";
     }
     return errs;
   };
 
   const handleSubmit = async () => {
-    if (isDuplicateName) return;
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -88,15 +94,24 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
     try {
       await createSubscriptions({
         ...form,
-        billingMonth: form.billingCycle === "MONTHLY" ? null : form.billingMonth,
+        billingMonth:
+          form.billingCycle === "MONTHLY" ? null : form.billingMonth,
       });
-      toast({ content: "구독 서비스가 등록되었습니다.", variant: "positive", duration: "short" });
+      toast({
+        content: "구독 서비스가 등록되었습니다.",
+        variant: "positive",
+        duration: "short",
+      });
       setForm(INITIAL_FORM);
       setErrors({});
       onSuccess();
       onClose();
     } catch {
-      toast({ content: "등록 중 오류가 발생했습니다. 다시 시도해주세요.", variant: "negative", duration: "short" });
+      toast({
+        content: "등록 중 오류가 발생했습니다. 다시 시도해주세요.",
+        variant: "negative",
+        duration: "short",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -134,13 +149,16 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
                 value={form.serviceName}
                 onChange={(e) => {
                   setForm((f) => ({ ...f, serviceName: e.target.value }));
-                  if (errors.serviceName) setErrors((p) => ({ ...p, serviceName: undefined }));
+                  if (errors.serviceName)
+                    setErrors((p) => ({ ...p, serviceName: undefined }));
                   setIsDuplicateName(false);
                 }}
                 invalid={!!errors.serviceName || isDuplicateName}
                 width="100%"
               />
-              {errors.serviceName && <FormErrorMessage>{errors.serviceName}</FormErrorMessage>}
+              {errors.serviceName && (
+                <FormErrorMessage>{errors.serviceName}</FormErrorMessage>
+              )}
               {isDuplicateName && (
                 <FormErrorMessage>이미 등록된 서비스명입니다.</FormErrorMessage>
               )}
@@ -159,14 +177,18 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
             </Typography>
             <Select
               value={form.category}
-              onChange={(v) => setForm((f) => ({ ...f, category: v as SubscribeCategory }))}
+              onChange={(v) =>
+                setForm((f) => ({ ...f, category: v as SubscribeCategory }))
+              }
               width="100%"
             >
-              {(Object.keys(CATEGORY_META) as SubscribeCategory[]).map((cat) => (
-                <Option key={cat} value={cat}>
-                  {CATEGORY_META[cat].emoji} {CATEGORY_META[cat].label}
-                </Option>
-              ))}
+              {(Object.keys(CATEGORY_META) as SubscribeCategory[]).map(
+                (cat) => (
+                  <Option key={cat} value={cat}>
+                    {CATEGORY_META[cat].emoji} {CATEGORY_META[cat].label}
+                  </Option>
+                ),
+              )}
             </Select>
           </ModalContentItem>
 
@@ -186,13 +208,19 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
                 placeholder="예: 13900"
                 value={form.price === 0 ? "" : String(form.price)}
                 onChange={(e) => {
-                  setForm((f) => ({ ...f, price: Number(e.target.value) || 0 }));
-                  if (errors.price) setErrors((p) => ({ ...p, price: undefined }));
+                  setForm((f) => ({
+                    ...f,
+                    price: Number(e.target.value) || 0,
+                  }));
+                  if (errors.price)
+                    setErrors((p) => ({ ...p, price: undefined }));
                 }}
                 invalid={!!errors.price}
                 width="100%"
               />
-              {errors.price && <FormErrorMessage>{errors.price}</FormErrorMessage>}
+              {errors.price && (
+                <FormErrorMessage>{errors.price}</FormErrorMessage>
+              )}
             </FormField>
           </ModalContentItem>
 
@@ -213,16 +241,19 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
                 setForm((f) => ({
                   ...f,
                   billingCycle: cycle,
-                  billingMonth: cycle === "MONTHLY" ? null : (f.billingMonth ?? 1),
+                  billingMonth:
+                    cycle === "MONTHLY" ? null : (f.billingMonth ?? 1),
                 }));
               }}
               width="100%"
             >
-              {(Object.keys(BILLING_CYCLE_META) as BillingCycle[]).map((cycle) => (
-                <Option key={cycle} value={cycle}>
-                  {BILLING_CYCLE_META[cycle].label}
-                </Option>
-              ))}
+              {(Object.keys(BILLING_CYCLE_META) as BillingCycle[]).map(
+                (cycle) => (
+                  <Option key={cycle} value={cycle}>
+                    {BILLING_CYCLE_META[cycle].label}
+                  </Option>
+                ),
+              )}
             </Select>
           </ModalContentItem>
 
@@ -242,7 +273,8 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
                   value={String(form.billingMonth ?? 1)}
                   onChange={(v) => {
                     setForm((f) => ({ ...f, billingMonth: Number(v) }));
-                    if (errors.billingMonth) setErrors((p) => ({ ...p, billingMonth: undefined }));
+                    if (errors.billingMonth)
+                      setErrors((p) => ({ ...p, billingMonth: undefined }));
                   }}
                   width="100%"
                 >
@@ -252,7 +284,9 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
                     </Option>
                   ))}
                 </Select>
-                {errors.billingMonth && <FormErrorMessage>{errors.billingMonth}</FormErrorMessage>}
+                {errors.billingMonth && (
+                  <FormErrorMessage>{errors.billingMonth}</FormErrorMessage>
+                )}
               </FormField>
             )}
 
@@ -267,7 +301,9 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
               </Typography>
               <Select
                 value={String(form.billingDay)}
-                onChange={(v) => setForm((f) => ({ ...f, billingDay: Number(v) }))}
+                onChange={(v) =>
+                  setForm((f) => ({ ...f, billingDay: Number(v) }))
+                }
                 width="100%"
               >
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
@@ -291,14 +327,18 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
             </Typography>
             <Select
               value={form.paymentMethod}
-              onChange={(v) => setForm((f) => ({ ...f, paymentMethod: v as PaymentMethod }))}
+              onChange={(v) =>
+                setForm((f) => ({ ...f, paymentMethod: v as PaymentMethod }))
+              }
               width="100%"
             >
-              {(Object.keys(PAYMENT_METHOD_META) as PaymentMethod[]).map((pm) => (
-                <Option key={pm} value={pm}>
-                  {PAYMENT_METHOD_META[pm].label}
-                </Option>
-              ))}
+              {(Object.keys(PAYMENT_METHOD_META) as PaymentMethod[]).map(
+                (pm) => (
+                  <Option key={pm} value={pm}>
+                    {PAYMENT_METHOD_META[pm].label}
+                  </Option>
+                ),
+              )}
             </Select>
           </ModalContentItem>
         </ModalContent>
@@ -312,7 +352,12 @@ export default function SubscriptionFormModal({ open, onClose, onSuccess }: Prop
             borderTop: "1px solid var(--semantic-line-solid-normal)",
           }}
         >
-          <Button variant="outlined" color="assistive" size="medium" onClick={handleClose}>
+          <Button
+            variant="outlined"
+            color="assistive"
+            size="medium"
+            onClick={handleClose}
+          >
             취소
           </Button>
           <Button
