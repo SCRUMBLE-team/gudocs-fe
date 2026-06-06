@@ -6,12 +6,14 @@ import DashboardPage from "./routes/dashboard/DashboardPage";
 import MyPage from "./routes/mypage/MyPage";
 import SubscriptionDetailPage from "./routes/subscriptions/SubscriptionDetailPage";
 import AnalyticsPage from "./routes/analytics/AnalyticsPage";
+import LandingPage from "./routes/landing/LandingPage";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          <Route path="/landing" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/dashboard/*" element={<DashboardPage />} />
