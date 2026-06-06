@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Typography, Button } from "@wanteddev/wds";
+import { motion } from "framer-motion";
+import { Button, TextButton } from "@wanteddev/wds";
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 
@@ -11,14 +11,6 @@ const fadeUp = {
     opacity: 1,
     y: 0,
     transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay },
-  }),
-};
-
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: (delay: number = 0) => ({
-    opacity: 1,
-    transition: { duration: 0.5, delay },
   }),
 };
 
@@ -88,7 +80,8 @@ function Navbar() {
         backgroundColor: scrolled ? "rgba(255,255,255,0.92)" : "transparent",
         backdropFilter: scrolled ? "blur(12px)" : "none",
         borderBottom: scrolled ? "1px solid rgba(0,0,0,0.06)" : "none",
-        transition: "background-color 0.3s, backdrop-filter 0.3s, border-bottom 0.3s",
+        transition:
+          "background-color 0.3s, backdrop-filter 0.3s, border-bottom 0.3s",
       }}
     >
       <span
@@ -104,18 +97,10 @@ function Navbar() {
         Gudocs<span style={{ color: "#0066FF" }}>!</span>
       </span>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/login")}
-        >
+        <Button size="medium" onClick={() => navigate("/login")}>
           로그인
         </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => navigate("/register")}
-        >
+        <Button size="medium" onClick={() => navigate("/register")}>
           무료로 시작하기
         </Button>
       </div>
@@ -146,31 +131,105 @@ function DashboardMockup() {
       }}
     >
       {/* Window chrome */}
-      <div style={{ background: "#F3F4F6", padding: "10px 16px", display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FF5F57", display: "inline-block" }} />
-        <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FEBC2E", display: "inline-block" }} />
-        <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#28C840", display: "inline-block" }} />
-        <span style={{ flex: 1, textAlign: "center", fontSize: 11, color: "#9CA3AF", fontFamily: "monospace" }}>
+      <div
+        style={{
+          background: "#F3F4F6",
+          padding: "10px 16px",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
+        <span
+          style={{
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: "#FF5F57",
+            display: "inline-block",
+          }}
+        />
+        <span
+          style={{
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: "#FEBC2E",
+            display: "inline-block",
+          }}
+        />
+        <span
+          style={{
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: "#28C840",
+            display: "inline-block",
+          }}
+        />
+        <span
+          style={{
+            flex: 1,
+            textAlign: "center",
+            fontSize: 11,
+            color: "#9CA3AF",
+            fontFamily: "monospace",
+          }}
+        >
           gudocs.app/dashboard
         </span>
       </div>
 
       {/* Content */}
       <div style={{ padding: "20px 20px 16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 16,
+          }}
+        >
           <div>
-            <div style={{ fontSize: 11, color: "#6B7280", marginBottom: 2 }}>이번 달 총 구독 비용</div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: "#111827", letterSpacing: "-1px" }}>₩102,600</div>
+            <div style={{ fontSize: 11, color: "#6B7280", marginBottom: 2 }}>
+              이번 달 총 구독 비용
+            </div>
+            <div
+              style={{
+                fontSize: 24,
+                fontWeight: 800,
+                color: "#111827",
+                letterSpacing: "-1px",
+              }}
+            >
+              ₩102,600
+            </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 11, color: "#6B7280", marginBottom: 2 }}>구독 수</div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: "#111827" }}>7개</div>
+            <div style={{ fontSize: 11, color: "#6B7280", marginBottom: 2 }}>
+              구독 수
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: "#111827" }}>
+              7개
+            </div>
           </div>
         </div>
 
-        <div style={{ background: "#FFF7ED", borderRadius: 8, padding: "8px 12px", marginBottom: 16, display: "flex", gap: 6, alignItems: "center" }}>
+        <div
+          style={{
+            background: "#FFF7ED",
+            borderRadius: 8,
+            padding: "8px 12px",
+            marginBottom: 16,
+            display: "flex",
+            gap: 6,
+            alignItems: "center",
+          }}
+        >
           <span style={{ fontSize: 12 }}>⚠️</span>
-          <span style={{ fontSize: 11, color: "#92400E" }}>3일 내 결제 예정: Netflix ₩17,000</span>
+          <span style={{ fontSize: 11, color: "#92400E" }}>
+            3일 내 결제 예정: Netflix ₩17,000
+          </span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -201,8 +260,19 @@ function DashboardMockup() {
               >
                 {s.icon}
               </span>
-              <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: "#111827" }}>{s.name}</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#0066FF" }}>{s.amount}</span>
+              <span
+                style={{
+                  flex: 1,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "#111827",
+                }}
+              >
+                {s.name}
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#0066FF" }}>
+                {s.amount}
+              </span>
             </div>
           ))}
         </div>
@@ -236,7 +306,8 @@ function HeroSection() {
           width: 600,
           height: 600,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,102,255,0.08) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(0,102,255,0.08) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -248,7 +319,8 @@ function HeroSection() {
           width: 400,
           height: 400,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(99,179,237,0.08) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(99,179,237,0.08) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -265,7 +337,11 @@ function HeroSection() {
         }}
       >
         {/* Left */}
-        <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+        >
           <motion.div custom={0} variants={fadeUp}>
             <span
               style={{
@@ -334,24 +410,38 @@ function HeroSection() {
             </p>
           </motion.div>
 
-          <motion.div custom={0.4} variants={fadeUp} style={{ display: "flex", gap: 12 }}>
-            <Button variant="primary" size="lg" onClick={() => navigate("/register")}>
+          <motion.div
+            custom={0.4}
+            variants={fadeUp}
+            style={{ display: "flex", gap: 12 }}
+          >
+            <TextButton size="medium" onClick={() => navigate("/register")}>
               무료로 시작하기 →
-            </Button>
-            <Button variant="outlined" size="lg" onClick={() => navigate("/login")}>
+            </TextButton>
+            <TextButton size="medium" onClick={() => navigate("/login")}>
               로그인
-            </Button>
+            </TextButton>
           </motion.div>
 
-          <motion.div custom={0.5} variants={fadeUp} style={{ marginTop: 40, display: "flex", gap: 32 }}>
+          <motion.div
+            custom={0.5}
+            variants={fadeUp}
+            style={{ marginTop: 40, display: "flex", gap: 32 }}
+          >
             {[
               { number: "7+", label: "구독 서비스 연동" },
               { number: "100%", label: "무료 사용" },
               { number: "실시간", label: "결제 알림" },
             ].map((stat) => (
               <div key={stat.label}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: "#0066FF" }}>{stat.number}</div>
-                <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 2 }}>{stat.label}</div>
+                <div
+                  style={{ fontSize: 22, fontWeight: 800, color: "#0066FF" }}
+                >
+                  {stat.number}
+                </div>
+                <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 2 }}>
+                  {stat.label}
+                </div>
               </div>
             ))}
           </motion.div>
@@ -515,25 +605,29 @@ const features = [
   {
     icon: "📋",
     title: "구독 한눈에 관리",
-    description: "모든 구독 서비스를 등록하고 한 화면에서 상태·금액·결제일을 즉시 확인하세요.",
+    description:
+      "모든 구독 서비스를 등록하고 한 화면에서 상태·금액·결제일을 즉시 확인하세요.",
     gradient: "linear-gradient(135deg, #EBF5FF 0%, #DBEAFE 100%)",
   },
   {
     icon: "📈",
     title: "월별 지출 분석",
-    description: "카테고리별 지출 비율과 월간 추이 그래프로 어디서 돈이 새는지 한눈에 파악하세요.",
+    description:
+      "카테고리별 지출 비율과 월간 추이 그래프로 어디서 돈이 새는지 한눈에 파악하세요.",
     gradient: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)",
   },
   {
     icon: "🔔",
     title: "결제 예정 알림",
-    description: "결제일 D-3, D-1 사전 알림으로 원치 않는 자동 결제를 예방하세요.",
+    description:
+      "결제일 D-3, D-1 사전 알림으로 원치 않는 자동 결제를 예방하세요.",
     gradient: "linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 100%)",
   },
   {
     icon: "💰",
     title: "비용 최적화",
-    description: "오랫동안 사용하지 않은 구독을 감지하고 불필요한 지출을 정리할 수 있게 도와드립니다.",
+    description:
+      "오랫동안 사용하지 않은 구독을 감지하고 불필요한 지출을 정리할 수 있게 도와드립니다.",
     gradient: "linear-gradient(135deg, #FDF4FF 0%, #FAE8FF 100%)",
   },
 ];
@@ -575,12 +669,16 @@ function FeaturesSection() {
               lineHeight: 1.2,
             }}
           >
-            Gudocs가{" "}
-            <span style={{ color: "#0066FF" }}>해결합니다</span>
+            Gudocs가 <span style={{ color: "#0066FF" }}>해결합니다</span>
           </motion.h2>
           <motion.p
             variants={fadeUp}
-            style={{ fontSize: 16, color: "#6B7280", marginTop: 16, lineHeight: 1.7 }}
+            style={{
+              fontSize: 16,
+              color: "#6B7280",
+              marginTop: 16,
+              lineHeight: 1.7,
+            }}
           >
             복잡한 구독 관리, 이제 Gudocs 하나로 끝내세요.
           </motion.p>
@@ -610,7 +708,9 @@ function FeaturesSection() {
                 cursor: "default",
               }}
             >
-              <div style={{ fontSize: 36, marginBottom: 16 }}>{feature.icon}</div>
+              <div style={{ fontSize: 36, marginBottom: 16 }}>
+                {feature.icon}
+              </div>
               <h3
                 style={{
                   fontSize: 20,
@@ -872,24 +972,10 @@ function CTASection() {
               무료로 가입하고, 오늘부터 구독을 스마트하게 관리해보세요.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => navigate("/register")}
-                style={{
-                  background: "#fff",
-                  color: "#0066FF",
-                  border: "none",
-                }}
-              >
+              <Button size="medium" onClick={() => navigate("/register")}>
                 무료로 시작하기 →
               </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => navigate("/login")}
-                style={{ color: "rgba(255,255,255,0.9)" }}
-              >
+              <Button size="medium" onClick={() => navigate("/login")}>
                 로그인
               </Button>
             </div>
@@ -935,7 +1021,13 @@ function Footer() {
 
 export default function LandingPage() {
   return (
-    <div style={{ fontFamily: "'Pretendard', sans-serif", background: "#fff", overflowX: "hidden" }}>
+    <div
+      style={{
+        fontFamily: "'Pretendard', sans-serif",
+        background: "#fff",
+        overflowX: "hidden",
+      }}
+    >
       <Navbar />
       <HeroSection />
       <PainPointsSection />

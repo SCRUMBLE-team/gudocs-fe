@@ -19,8 +19,11 @@ function App() {
           <Route path="/dashboard/*" element={<DashboardPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/mypage" element={<MyPage />} />
-          <Route path="/subscriptions/:subscriptionId" element={<SubscriptionDetailPage />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route
+            path="/subscriptions/:subscriptionId"
+            element={<SubscriptionDetailPage />}
+          />
+          <Route path="*" element={<Navigate to="/landing" replace />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
