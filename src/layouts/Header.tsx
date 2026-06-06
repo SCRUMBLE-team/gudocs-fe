@@ -22,7 +22,7 @@ export default function Header() {
   const bellRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = upcomingNotifications.filter(
-    (n) => !readIds.includes(n.subscriptionId)
+    (n) => !readIds.includes(n.subscriptionId),
   ).length;
 
   const handleLogout = async () => {
@@ -30,7 +30,7 @@ export default function Header() {
     clearAuth();
     clearReadIds();
     setDropdownOpen(false);
-    navigate("/login");
+    navigate("/");
   };
 
   useEffect(() => {
