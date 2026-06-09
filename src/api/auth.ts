@@ -28,3 +28,35 @@ export async function getUser(): Promise<ApiResponse<User>> {
   const response = await server_axiosInstance.get("/api/auth/me");
   return response.data;
 }
+
+export async function changeName(name: string) {
+  const response = await server_axiosInstance.put("/api/users/me/name", {
+    name,
+  });
+
+  return response.data;
+}
+
+export async function changePassword({
+  currentPassword,
+  newPassword,
+}: {
+  currentPassword: string;
+  newPassword: string;
+}) {
+  const response = await server_axiosInstance.put("/api/users/me/password", {
+    currentPassword,
+    newPassword,
+  });
+
+  return response.data;
+}
+
+export async function deleteUser(currentPassword: string) {
+  const response = await server_axiosInstance.request({
+    method: "DELETE",
+    url: "/api/users/me",
+    data: { currentPassword },
+  });
+  return response.data;
+}

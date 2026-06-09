@@ -9,6 +9,7 @@ import {
   useToast,
 } from "@wanteddev/wds";
 import AppLayout from "../../layouts/AppLayout";
+import { changeName, changePassword, deleteUser } from "../../api/auth";
 import { useAuthStore } from "../../stores/useAuthStore";
 
 interface PasswordErrors {
@@ -20,7 +21,7 @@ interface PasswordErrors {
 export default function MyPage() {
   const navigate = useNavigate();
   const toast = useToast();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, setUser, logout } = useAuthStore();
 
   const [name, setName] = useState(user?.name ?? "");
   const [isEditingName, setIsEditingName] = useState(false);
@@ -32,6 +33,7 @@ export default function MyPage() {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) navigate("/login");
@@ -41,18 +43,32 @@ export default function MyPage() {
 
   const initials = user?.name ? user.name.charAt(0).toUpperCase() : "U";
 
-  const handleNameSave = () => {
-    if (!name.trim()) return;
-    toast({
-      content: "API 연동 후 사용 가능합니다.",
-      variant: "normal",
-      duration: "short",
-    });
-    setIsEditingName(false);
-    setName(user?.name ?? "");
+  const handleNameSave = async () => {
+    if (!name.trim() || isLoading) return;
+    setIsLoading(true);
+    try {
+      await changeName(name.trim());
+      setUser({ ...user!, name: name.trim() });
+      toast({
+        content: "이름이 변경되었습니다.",
+        variant: "positive",
+        duration: "short",
+      });
+      setIsEditingName(false);
+    } catch (e) {
+      console.error(e);
+      toast({
+        content: "처리 중 오류가 발생했습니다. 다시 시도해주세요.",
+        variant: "negative",
+        duration: "short",
+      });
+      setName(user?.name ?? "");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs: PasswordErrors = {};
 
@@ -67,14 +83,30 @@ export default function MyPage() {
       return;
     }
 
-    toast({
-      content: "API 연동 후 사용 가능합니다.",
-      variant: "normal",
-      duration: "short",
-    });
+    setIsLoading(true);
+    try {
+      await changePassword({ currentPassword, newPassword });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      toast({
+        content: "비밀번호가 변경되었습니다.",
+        variant: "positive",
+        duration: "short",
+      });
+    } catch (e) {
+      console.error(e);
+      toast({
+        content: "처리 중 오류가 발생했습니다. 다시 시도해주세요.",
+        variant: "negative",
+        duration: "short",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     if (!deletePassword) {
       toast({
         content: "비밀번호를 입력하세요.",
@@ -83,13 +115,21 @@ export default function MyPage() {
       });
       return;
     }
-    toast({
-      content: "API 연동 후 사용 가능합니다.",
-      variant: "normal",
-      duration: "short",
-    });
-    setShowDeleteConfirm(false);
-    setDeletePassword("");
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      await deleteUser(deletePassword);
+      logout();
+      navigate("/login");
+    } catch (e) {
+      console.error(e);
+      toast({
+        content: "처리 중 오류가 발생했습니다. 다시 시도해주세요.",
+        variant: "negative",
+        duration: "short",
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -209,6 +249,7 @@ export default function MyPage() {
                   color="primary"
                   size="small"
                   onClick={handleNameSave}
+                  disabled={isLoading}
                 >
                   저장
                 </Button>
@@ -354,6 +395,7 @@ export default function MyPage() {
                 variant="solid"
                 color="primary"
                 size="medium"
+                disabled={isLoading}
               >
                 비밀번호 변경
               </Button>
@@ -423,6 +465,7 @@ export default function MyPage() {
               <div style={{ display: "flex", gap: "8px" }}>
                 <button
                   onClick={handleDeleteAccount}
+                  disabled={isLoading}
                   style={{
                     backgroundColor: "#dc2626",
                     color: "white",
