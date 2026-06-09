@@ -33,7 +33,7 @@ export default function Header() {
     navigate("/");
   };
 
-  useEffect(() => {
+  useEffect(() => {8
     if (!isAuthenticated) {
       setUpcomingNotifications([]);
       return;
